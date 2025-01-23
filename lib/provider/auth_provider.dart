@@ -9,9 +9,7 @@ class AuthProvider extends ChangeNotifier {
 
   String? get token => _token;
 
-  /// Authenticate user:
-  /// - First, try login (new users).
-  /// - If login succeeds, automatically perform signin to get a JWT token.
+
   Future<bool> authenticateUser(
       BuildContext context, String email, String password) async {
     try {
@@ -38,9 +36,7 @@ class AuthProvider extends ChangeNotifier {
         _showPopup(context, 'Login Error', loginResponse['message']);
         return false;
       }
-    } catch (e, stackTrace) {
-      print('Error: $e');
-      print('StackTrace: $stackTrace');
+    } catch (e) {
       _showPopup(context, 'Error', 'An unexpected error occurred.');
       return false;
     }
@@ -72,6 +68,6 @@ class AuthProvider extends ChangeNotifier {
 
   void setToken(String token) {
     _token = token;
-    notifyListeners();
+    Future.microtask(() => notifyListeners());
   }
 }

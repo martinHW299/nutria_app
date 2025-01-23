@@ -14,7 +14,6 @@ class ApiService {
         'email': email,
         'password': password,
       });
-      print(response);
       return response.data;
     } catch (e) {
       return {'code': 500, 'message': 'Login failed', 'data': null};
@@ -28,7 +27,6 @@ class ApiService {
         'email': email,
         'password': password,
       });
-      print(response);
       return response.data;
     } catch (e) {
       return {'code': 500, 'message': 'Signin failed', 'data': null};
