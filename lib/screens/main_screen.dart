@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:nutria/screens/analytic_screen.dart';
+import 'package:nutria/screens/camere_screen.dart';
 import 'package:nutria/screens/food_screen.dart';
 import 'package:nutria/screens/home_screen.dart';
+import 'package:nutria/screens/profile_screen.dart';
 import 'package:nutria/utilities/app_colors.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 
@@ -16,7 +18,9 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> pages = [
     const HomeScreen(),
     const FoodScreen(),
+    const CameraScreen(),
     const AnalyticScreen(),
+    const ProfileScreen(),
   ];
 
   int currentPage = 0;
@@ -40,11 +44,19 @@ class _MainScreenState extends State<MainScreen> {
             color: Colors.white,
           ),
           Icon(
-            Icons.food_bank,
+            Icons.fastfood,
+            color: Colors.white,
+          ),
+          Icon(
+            Icons.camera_alt_rounded,
             color: Colors.white,
           ),
           Icon(
             Icons.data_saver_off_outlined,
+            color: Colors.white,
+          ),
+          Icon(
+            Icons.person,
             color: Colors.white,
           ),
         ],
