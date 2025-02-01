@@ -3,6 +3,7 @@ import 'package:nutria/screens/analytic_screen.dart';
 import 'package:nutria/screens/food_screen.dart';
 import 'package:nutria/screens/home_screen.dart';
 import 'package:nutria/utilities/app_colors.dart';
+import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -24,28 +25,29 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: pages[currentPage],
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: currentPage,
+      bottomNavigationBar: CurvedNavigationBar(
+        backgroundColor: AppColors.backgroundColor,
+        color: AppColors.appBarColor,
+        index: currentPage,
         onTap: (value) {
           setState(() {
             currentPage = value;
           });
         },
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: "Home",
+          Icon(
+            Icons.home,
+            color: Colors.white,
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.food_bank),
-            label: "Food",
+          Icon(
+            Icons.food_bank,
+            color: Colors.white,
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.data_saver_off_outlined),
-            label: "Analytic",
+          Icon(
+            Icons.data_saver_off_outlined,
+            color: Colors.white,
           ),
         ],
-        backgroundColor: AppColors.backgroundColor,
       ),
     );
   }
