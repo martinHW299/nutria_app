@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:nutria/utilities/app_colors.dart';
 
 class TitleWidget extends StatelessWidget {
   final String title;
-  const TitleWidget({super.key, required this.title});
+  final Color color;
+  const TitleWidget({super.key, required this.title, required this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -12,10 +12,8 @@ class TitleWidget extends StatelessWidget {
       padding: const EdgeInsets.all(10),
       child: Text(
         title,
-        style: TextStyle(
-            color: AppColors.appBarColor,
-            fontWeight: FontWeight.w500,
-            fontSize: 30),
+        style:
+            TextStyle(color: color, fontWeight: FontWeight.w500, fontSize: 30),
       ),
     );
   }
