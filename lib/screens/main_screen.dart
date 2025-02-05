@@ -48,7 +48,7 @@ class _MainScreenState extends State<MainScreen> {
             color: Colors.white,
           ),
           Icon(
-            Icons.camera_alt_rounded,
+            Icons.add,
             color: Colors.white,
           ),
           Icon(

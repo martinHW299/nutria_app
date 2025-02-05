@@ -4,6 +4,7 @@ import 'package:nutria/providers/auth_provider.dart';
 import 'package:nutria/screens/login_screen.dart';
 import 'package:nutria/screens/main_screen.dart';
 import 'package:nutria/screens/signup_scree.dart';
+import 'package:nutria/screens/user_profile_intro_screen.dart';
 import 'package:provider/provider.dart';
 
 void main() {
@@ -43,6 +44,7 @@ class _MyAppState extends State<MyApp> {
         routes: {
           '/': (context) => LoginScreen(),
           '/signup': (context) => SignupScreen(),
+          "/userProfileIntro": (context) => UserProfileIntroScreen(),
           '/main': (context) => MainScreen(),
         },
       ),

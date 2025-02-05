@@ -1,54 +1,46 @@
 import 'package:flutter/material.dart';
 import 'package:nutria/providers/auth_provider.dart';
-import 'package:nutria/utilities/app_colors.dart';
-import 'package:nutria/widgets/input_field_widget.dart';
-import 'package:nutria/widgets/title_widget.dart';
+import 'package:nutria/widgets/input_field.dart';
+import 'package:nutria/widgets/primary_button.dart';
 import 'package:provider/provider.dart';
 
 class SignupScreen extends StatelessWidget {
-  SignupScreen({super.key});
-
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+
+  SignupScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
-
     return Scaffold(
-      backgroundColor: AppColors.backgroundColor,
+      appBar: AppBar(title: const Text('Sign Up')),
       body: Padding(
         padding: const EdgeInsets.all(10),
         child: ListView(
           children: <Widget>[
-            TitleWidget(
-              title: 'Sign up',
-              color: AppColors.appBarColor,
-            ),
             InputField(
               controller: emailController,
-              label: 'User Name',
+              label: 'Email',
+              icon: Icons.email,
             ),
             InputField(
               controller: passwordController,
               label: 'Password',
-              obscureText: true,
+              isObscure: true,
+              icon: Icons.lock,
             ),
             authProvider.isLoading
                 ? CircularProgressIndicator()
-                : ElevatedButton(
+                : PrimaryButton(
                     onPressed: () => authProvider.signup(
                       context,
                       emailController.text,
                       passwordController.text,
                     ),
-                    child: Text('Sign Up'),
+                    text: 'Sign up',
                   ),
-            SizedBox(height: 10),
-            TextButton(
-              onPressed: () => Navigator.pop(context), // Return to Login Screen
-              child: Text('Back to Login'),
-            ),
+            SizedBox(height: 10)
           ],
         ),
       ),

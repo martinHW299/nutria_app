@@ -23,8 +23,7 @@ class AuthService {
         'password': password,
       });
       if (response.data['code'] == 200) {
-        await StorageService().saveToken(response.data['data']);
-        return response.data;
+        return await login(email, password);
       }
       return response.data;
     } catch (e) {

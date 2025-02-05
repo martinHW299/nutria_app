@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:nutria/services/auth_service.dart';
 
@@ -32,10 +34,12 @@ class AuthProvider extends ChangeNotifier {
     final result = await _authService.signup(email, password);
     setLoading(false);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-          content: Text(result['message']),
-          backgroundColor: result['code'] == 200 ? Colors.green : Colors.red),
-    );
+    if (result['code'] == 200) {
+      Navigator.pushReplacementNamed(context, '/userProfileIntro');
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(result['message']), backgroundColor: Colors.red),
+      );
+    }
   }
 }
