@@ -1,0 +1,8 @@
+flutter_native_splash:
+  android: true
+  ios: true
+  web: false
+
+  color: "#2E86C1"
+  image: "assets/images/logo/nutria_logo_w.png"
+  branding: assets/images/logo/brand.png
