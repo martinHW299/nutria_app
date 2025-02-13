@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:nutria/providers/auth_provider.dart';
+import 'package:nutria/providers/user_profile_provider.dart';
 import 'package:nutria/screens/login_screen.dart';
 import 'package:nutria/screens/main_screen.dart';
 import 'package:nutria/screens/signup_scree.dart';
@@ -36,6 +37,7 @@ class _MyAppState extends State<MyApp> {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => UserProfileProvider()),
       ],
       child: MaterialApp(
         title: 'Flutter Auth',
@@ -44,7 +46,7 @@ class _MyAppState extends State<MyApp> {
         routes: {
           '/': (context) => LoginScreen(),
           '/signup': (context) => SignupScreen(),
-          "/userProfileIntro": (context) => UserProfileIntroScreen(),
+          '/userProfileIntro': (context) => UserProfileIntroScreen(),
           '/main': (context) => MainScreen(),
         },
       ),

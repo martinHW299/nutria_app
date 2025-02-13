@@ -18,7 +18,6 @@ class AuthProvider extends ChangeNotifier {
     setLoading(true);
     final result = await _authService.login(email, password);
     setLoading(false);
-
     if (result['code'] == 200) {
       Navigator.pushReplacementNamed(context, '/main');
     } else {
@@ -28,14 +27,24 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> signup(
-      BuildContext context, String email, String password) async {
+  Future<void> signup(BuildContext context, String email, String password,
+      String confirmPassword) async {
+    if (password != confirmPassword) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text('Passwords do not match'),
+            backgroundColor: Colors.red),
+      );
+      return;
+    }
     setLoading(true);
     final result = await _authService.signup(email, password);
     setLoading(false);
-
     if (result['code'] == 200) {
-      Navigator.pushReplacementNamed(context, '/userProfileIntro');
+      final result = await _authService.login(email, password);
+      if (result['code'] == 200) {
+        Navigator.pushReplacementNamed(context, '/userProfileIntro');
+      }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(result['message']), backgroundColor: Colors.red),
