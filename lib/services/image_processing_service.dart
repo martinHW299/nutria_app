@@ -44,7 +44,8 @@ class ImageProcessingService {
     print('image: $base64Image');
     try {
       final response = await ApiClient.post(
-        'food-trace/process-image?id=0',
+        'food-trace/process-image?id=1&tmp=0.2',
+        // 'food-trace/process-image?id=1&tmp=0.5
         {'image': base64Image},
         headers: {
           'Authorization': 'Bearer $token',

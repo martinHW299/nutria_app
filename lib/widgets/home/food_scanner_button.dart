@@ -97,7 +97,7 @@ class FoodScannerButton extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text('Calories: ', style: const TextStyle(fontWeight: FontWeight.bold)),
-                    Text('\${foodData.calories} Kcal'),
+                    Text('${foodData.calories} Kcal'),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -105,7 +105,7 @@ class FoodScannerButton extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text('Proteins: ', style: const TextStyle(fontWeight: FontWeight.bold)),
-                    Text('\${foodData.proteins} g'),
+                    Text('${foodData.proteins} g'),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -113,7 +113,7 @@ class FoodScannerButton extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text('Carbs: ', style: const TextStyle(fontWeight: FontWeight.bold)),
-                    Text('\${foodData.carbs} g'),
+                    Text('${foodData.carbs} g'),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -121,7 +121,7 @@ class FoodScannerButton extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text('Fats: ', style: const TextStyle(fontWeight: FontWeight.bold)),
-                    Text('\${foodData.fats} g'),
+                    Text('${foodData.fats} g'),
                   ],
                 ),
                 const SizedBox(height: 8),
@@ -129,7 +129,7 @@ class FoodScannerButton extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text('Serving Size: ', style: const TextStyle(fontWeight: FontWeight.bold)),
-                    Text('\${foodData.servingSize} g'),
+                    Text('${foodData.servingSize} g'),
                   ],
                 ),
               ],
