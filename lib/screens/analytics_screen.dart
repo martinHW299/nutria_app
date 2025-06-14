@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:nutria/models/food_trace.dart';
 import 'package:nutria/models/nutrition_data.dart';
 import 'package:nutria/services/analytics_service.dart';
-import 'package:nutria/widgets/home/food_scanner_button.dart';
 import 'package:nutria/widgets/analytics/nutrition_bar_chart.dart';
 import 'package:nutria/widgets/analytics/weight_status_chart.dart';
 
@@ -215,61 +213,6 @@ class _AnalyticsScreenState extends State<AnalyticsScreen> with SingleTickerProv
                 ),
               ),
             ),
-            
-            // Today's food section
-            // Padding(
-            //   padding: const EdgeInsets.fromLTRB(16.0, 8.0, 16.0, 16.0),
-            //   child: Column(
-            //     crossAxisAlignment: CrossAxisAlignment.start,
-            //     children: [
-            //       Text(
-            //         'Today\'s Food (${widget.selectedDate.day}/${widget.selectedDate.month}/${widget.selectedDate.year})',
-            //         style: Theme.of(context).textTheme.titleMedium,
-            //       ),
-                  
-            //       const SizedBox(height: 10),
-                  
-            //       if (_foodTraces.isEmpty)
-            //         const Padding(
-            //           padding: EdgeInsets.all(16.0),
-            //           child: Text('No food traces available for the selected date.'),
-            //         )
-            //       else
-            //         ListView.builder(
-            //           shrinkWrap: true,
-            //           physics: const NeverScrollableScrollPhysics(),
-            //           itemCount: _foodTraces.length,
-            //           itemBuilder: (context, index) {
-            //             final trace = _foodTraces[index];
-            //             return Card(
-            //               margin: const EdgeInsets.symmetric(vertical: 4),
-            //               child: ListTile(
-            //                 leading: CircleAvatar(
-            //                   backgroundColor: Theme.of(context).primaryColor.withOpacity(0.2),
-            //                   child: Text(
-            //                     trace.foodName.substring(0, 1).toUpperCase(),
-            //                     style: TextStyle(
-            //                       color: Theme.of(context).primaryColor,
-            //                       fontWeight: FontWeight.bold,
-            //                     ),
-            //                   ),
-            //                 ),
-            //                 title: Text(trace.foodName),
-            //                 subtitle: Text(
-            //                   'Calories: ${trace.calories} • P: ${trace.protein}g • C: ${trace.carbs}g • F: ${trace.fat}g',
-            //                 ),
-            //                 trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-            //                 onTap: () {
-            //                   // Navigate to food details screen
-            //                   // Navigator.pushNamed(context, '/food-detail', arguments: trace);
-            //                 },
-            //               ),
-            //             );
-            //           },
-            //         ),
-            //     ],
-            //   ),
-            // ),
           ],
         ),
       ),

@@ -164,13 +164,13 @@ class NutritionBarChart extends StatelessWidget {
     
     switch (chartType) {
       case NutritionChartType.calories:
-        baseColor = Colors.blue;
+        baseColor = const Color.fromARGB(255, 11, 64, 107);
         break;
       case NutritionChartType.proteins:
-        baseColor = Colors.red;
+        baseColor = Colors.blue;
         break;
       case NutritionChartType.carbs:
-        baseColor = Colors.amber;
+        baseColor = const Color.fromARGB(255, 255, 127, 7);
         break;
       case NutritionChartType.fats:
         baseColor = Colors.green;

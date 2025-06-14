@@ -29,8 +29,26 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Authentication App',
       theme: ThemeData(
-        //primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
+        scaffoldBackgroundColor: Colors.white,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Color(0xFF066FFF),
+          background: Colors.white,
+        ),
+        textTheme: TextTheme(
+          bodyLarge: TextStyle(color: Color(0xFF066FFF)),
+          bodyMedium: TextStyle(color: Color(0xFF066FFF)),
+          bodySmall: TextStyle(color: Color(0xFF066FFF)),
+          headlineLarge: TextStyle(color: Color(0xFF066FFF)),
+          headlineMedium: TextStyle(color: Color(0xFF066FFF)),
+          headlineSmall: TextStyle(color: Color(0xFF066FFF)),
+          titleLarge: TextStyle(color: Color(0xFF066FFF)),
+          titleMedium: TextStyle(color: Color(0xFF066FFF)),
+          titleSmall: TextStyle(color: Color(0xFF066FFF)),
+          labelLarge: TextStyle(color: Color(0xFF066FFF)),
+          labelMedium: TextStyle(color: Color(0xFF066FFF)),
+          labelSmall: TextStyle(color: Color(0xFF066FFF)),
+        ),
       ),
       initialRoute: isLoggedIn ? '/home' : '/login',
       routes: {

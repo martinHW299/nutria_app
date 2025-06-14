@@ -15,12 +15,8 @@ enum ActivityLevel {
 
 enum CaloricAdjustment {
   MAINTAIN,
-  LOSS_LIGHT,
-  LOSS_MODERATE,
-  GAIN_LIGHT,
-  GAIN_MODERATE,
-  GAIN_AGGRESSIVE,
-  GAIN_VERY_AGGRESSIVE
+  LOSS,
+  GAIN
 }
 
 // Helper methods to get display names
@@ -57,18 +53,10 @@ extension CaloricAdjustmentExtension on CaloricAdjustment {
     switch (this) {
       case CaloricAdjustment.MAINTAIN:
         return 'Maintain current weight';
-      case CaloricAdjustment.LOSS_LIGHT:
-        return 'Light weight loss (10% deficit)';
-      case CaloricAdjustment.LOSS_MODERATE:
-        return 'Moderate weight loss (20% deficit)';
-      case CaloricAdjustment.GAIN_LIGHT:
-        return 'Light weight gain (10% surplus)';
-      case CaloricAdjustment.GAIN_MODERATE:
-        return 'Moderate weight gain (15% surplus)';
-      case CaloricAdjustment.GAIN_AGGRESSIVE:
-        return 'Aggressive weight gain (20% surplus)';
-      case CaloricAdjustment.GAIN_VERY_AGGRESSIVE:
-        return 'Very aggressive weight gain (25% surplus)';
+      case CaloricAdjustment.LOSS:
+        return 'Moderate weight loss';
+      case CaloricAdjustment.GAIN:
+        return 'Moderate weight gain';
     }
   }
 }

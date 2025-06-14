@@ -6,7 +6,6 @@ import 'package:nutria/models/nutrition_goal.dart';
 import 'package:nutria/models/daily_intake.dart';
 import 'package:nutria/services/nutrition_service.dart';
 import 'package:nutria/utils/event_bus.dart';
-// import 'package:nutria/widgets/home/food_scanner_button.dart';
 import 'package:nutria/widgets/trace/nutrition_tracking_cards.dart';
 import 'package:nutria/widgets/trace/food_detail_card.dart';
 import '../models/food_trace.dart';

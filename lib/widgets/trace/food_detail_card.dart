@@ -92,21 +92,21 @@ class FoodDetailCard extends StatelessWidget {
               label: 'Proteins',
               value: macrosData.proteins,
               total: totalGrams,
-              color: Colors.red,
+              color: Colors.blue,
             ),
             const SizedBox(height: 8),
             MacrosIndicator(
               label: 'Carbs',
               value: macrosData.carbs,
               total: totalGrams,
-              color: Colors.blue,
+              color: Colors.orange,
             ),
             const SizedBox(height: 8),
             MacrosIndicator(
               label: 'Fats',
               value: macrosData.fats,
               total: totalGrams,
-              color: Colors.amber,
+              color: Colors.green,
             ),
             
             const SizedBox(height: 16),
@@ -208,9 +208,9 @@ class MacrosPieChart extends CustomPainter {
     final radius = size.width / 2;
     
     // Define colors for each macro
-    const proteinColor = Colors.red;
-    const carbColor = Colors.blue;
-    const fatColor = Colors.amber;
+    const proteinColor = Colors.blue;
+    const carbColor = Colors.orange;
+    const fatColor = Colors.green;
     
     // Calculate angles
     final proteinAngle = 2 * 3.14159 * (proteins / total);

@@ -80,8 +80,7 @@ class _SignupScreenState extends State<SignupScreen> {
     }
   }
 
-  // Validate step 2 (Physical Measurements) and fetch health advice
-  // Validate step 2 (Physical Measurements) and fetch health advice
+// Validate step 2 (Physical Measurements) and fetch health advice
 Future<void> _validateStep2() async {
   bool isValid = _heightController.text.isNotEmpty &&
       _weightController.text.isNotEmpty &&
@@ -109,9 +108,9 @@ Future<void> _validateStep2() async {
           
           // Pre-select caloric adjustment based on advice
           if (data['suggestedGoal'] == 'LOSS') {
-            _selectedCaloricAdjustment = CaloricAdjustment.LOSS_LIGHT;
+            _selectedCaloricAdjustment = CaloricAdjustment.LOSS;
           } else if (data['suggestedGoal'] == 'GAIN') {
-            _selectedCaloricAdjustment = CaloricAdjustment.GAIN_LIGHT;
+            _selectedCaloricAdjustment = CaloricAdjustment.GAIN;
           } else {
             _selectedCaloricAdjustment = CaloricAdjustment.MAINTAIN;
           }
@@ -564,13 +563,10 @@ Widget _buildActivityGoalsStep() {
                   
                   if (targetWeight > currentWeight) {
                     return adjustment == CaloricAdjustment.MAINTAIN ||
-                           adjustment == CaloricAdjustment.GAIN_LIGHT ||
-                           adjustment == CaloricAdjustment.GAIN_MODERATE ||
-                           adjustment == CaloricAdjustment.GAIN_AGGRESSIVE;
+                           adjustment == CaloricAdjustment.GAIN;
                   } else if (targetWeight < currentWeight) {
                     return adjustment == CaloricAdjustment.MAINTAIN ||
-                           adjustment == CaloricAdjustment.LOSS_LIGHT ||
-                           adjustment == CaloricAdjustment.LOSS_MODERATE;
+                           adjustment == CaloricAdjustment.LOSS;
                   }
                 } catch (e) {
                   // Show all options if parsing fails

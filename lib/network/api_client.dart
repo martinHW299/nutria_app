@@ -3,7 +3,7 @@ import 'package:dio/dio.dart';
 
 class ApiClient {
   static final Dio _dio = Dio(BaseOptions(
-    baseUrl: 'http://192.168.0.4:8080/api/v1/',
+    baseUrl: 'http://192.168.0.229:8080/api/v1/',
     contentType: 'application/json',
     responseType: ResponseType.json,
     connectTimeout: Duration(seconds: 10),
