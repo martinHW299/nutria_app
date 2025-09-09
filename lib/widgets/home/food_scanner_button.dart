@@ -1,15 +1,81 @@
 import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:nutria/models/food_trace.dart';
 import 'package:nutria/services/image_processing_service.dart';
 import 'package:nutria/utils/event_bus.dart';
 
-class FoodScannerButton extends StatelessWidget {
+class FoodScannerButton extends StatefulWidget {
   final DateTime? date;
 
   const FoodScannerButton({super.key, required this.date});
+
+  @override
+  State<FoodScannerButton> createState() => _FoodScannerButtonState();
+}
+
+class _FoodScannerButtonState extends State<FoodScannerButton> {
+  ScaffoldMessengerState? _scaffoldMessenger;
+  NavigatorState? _navigator;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    try {
+      _scaffoldMessenger = ScaffoldMessenger.of(context);
+      _navigator = Navigator.of(context);
+    } catch (e) {
+      // Handle case where ancestors might not be available
+      _scaffoldMessenger = null;
+      _navigator = null;
+    }
+  }
+
+  void _showMessage(String message, {Color? backgroundColor}) {
+    if (mounted && _scaffoldMessenger != null && _scaffoldMessenger!.mounted) {
+      _scaffoldMessenger!.showSnackBar(
+        SnackBar(content: Text(message), backgroundColor: backgroundColor),
+      );
+    }
+  }
+
+  void _showLoadingMessage(String message) {
+    if (mounted && _scaffoldMessenger != null && _scaffoldMessenger!.mounted) {
+      _scaffoldMessenger!.showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: Colors.white,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Text(message),
+            ],
+          ),
+          duration: const Duration(seconds: 30),
+        ),
+      );
+    }
+  }
+
+  void _hideCurrentMessage() {
+    if (mounted && _scaffoldMessenger != null && _scaffoldMessenger!.mounted) {
+      _scaffoldMessenger!.hideCurrentSnackBar();
+    }
+  }
+
+  void _navigateToHome() {
+    if (mounted && _navigator != null && _navigator!.mounted) {
+      _navigator!.pushNamedAndRemoveUntil('/home', (route) => false);
+    }
+  }
 
   Future<void> _pickImage(BuildContext context, ImageSource source) async {
     final ImagePicker picker = ImagePicker();
@@ -22,51 +88,44 @@ class FoodScannerButton extends StatelessWidget {
         maxHeight: 800,
       );
 
-      if (photo == null) return;
+      if (photo == null || !mounted) return;
 
       final Uint8List bytes = await photo.readAsBytes();
-      String base64Image = base64Encode(bytes).replaceAll('\n', '').replaceAll('\r', '').trim();
+      String base64Image =
+          base64Encode(bytes).replaceAll('\n', '').replaceAll('\r', '').trim();
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Processing image...')),
-      );
+      if (!mounted) return;
 
-      final foodData = await ImageProcessingService.processImage(base64Image);
-
-      if (foodData != null) {
-        _showFoodDataDialog(context, foodData);
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to process food image')),
-        );
-      }
+      _showServingSizeDialog(context, base64Image);
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: \${e.toString()}')),
-      );
+      _showMessage('Error: ${e.toString()}', backgroundColor: Colors.red);
     }
   }
 
   void _showSourceSelection(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      builder: (BuildContext ctx) {
+      builder: (BuildContext sheetContext) {
         return Wrap(
           children: [
             ListTile(
               leading: const Icon(Icons.camera_alt),
-              title: const Text('Take a Photo'),
+              title: const Text('Tomar una foto'),
               onTap: () {
-                Navigator.pop(ctx);
-                _pickImage(context, ImageSource.camera);
+                Navigator.pop(sheetContext);
+                if (mounted) {
+                  _pickImage(context, ImageSource.camera);
+                }
               },
             ),
             ListTile(
               leading: const Icon(Icons.photo_library),
-              title: const Text('Choose from Gallery'),
+              title: const Text('Elegir de la galería'),
               onTap: () {
-                Navigator.pop(ctx);
-                _pickImage(context, ImageSource.gallery);
+                Navigator.pop(sheetContext);
+                if (mounted) {
+                  _pickImage(context, ImageSource.gallery);
+                }
               },
             ),
           ],
@@ -75,20 +134,185 @@ class FoodScannerButton extends StatelessWidget {
     );
   }
 
-  void _showFoodDataDialog(BuildContext context, FoodData foodData) {
+  void _showServingSizeDialog(BuildContext context, String base64Image) {
+    final TextEditingController servingSizeController = TextEditingController();
+
     showDialog(
       context: context,
-      builder: (BuildContext context) {
+      builder: (BuildContext dialogContext) {
         return AlertDialog(
+          title: const Text('Tamaño de porción'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                '¿Cuántos gramos estimas que pesa tu comida?',
+                style: TextStyle(fontWeight: FontWeight.w500),
+              ),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.blue.shade50,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.blue.shade200),
+                ),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.info_outline,
+                      color: Colors.blue.shade600,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        'Este campo es opcional. Si no estás seguro, puedes dejarlo vacío y la app calculará automáticamente.',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.blue.shade700,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: servingSizeController,
+                decoration: const InputDecoration(
+                  labelText: 'Peso estimado (gramos)',
+                  hintText: 'Ej: 150',
+                  prefixIcon: Icon(Icons.scale),
+                  suffixText: 'g',
+                  border: OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.number,
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,1}')),
+                ],
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(dialogContext).pop();
+                if (mounted) {
+                  _processImageWithServingSize(base64Image, null);
+                }
+              },
+              child: const Text('Continuar sin peso'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final servingSize = double.tryParse(
+                  servingSizeController.text.trim(),
+                );
+                Navigator.of(dialogContext).pop();
+                if (mounted) {
+                  _processImageWithServingSize(base64Image, servingSize);
+                }
+              },
+              child: const Text('Analizar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _processImageWithServingSize(
+    String base64Image,
+    double? servingSize,
+  ) async {
+    if (!mounted) return;
+
+    _showLoadingMessage('Analizando imagen...');
+
+    try {
+      final foodData = await ImageProcessingService.processImage(
+        base64Image,
+        userServingSize: servingSize,
+      );
+
+      if (!mounted) return;
+
+      _hideCurrentMessage();
+
+      if (foodData != null) {
+        _showFoodDataDialog(foodData, servingSize);
+      } else {
+        _showMessage(
+          'Error al procesar la imagen de comida',
+          backgroundColor: Colors.red,
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+
+      _hideCurrentMessage();
+      _showMessage(
+        'Error al analizar: ${e.toString()}',
+        backgroundColor: Colors.red,
+      );
+    }
+  }
+
+  void _showFoodDataDialog(FoodData foodData, double? userServingSize) {
+    if (!mounted) return;
+
+    showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text('Información nutricional'),
           content: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
+                if (userServingSize != null)
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.green.shade50,
+                      borderRadius: BorderRadius.circular(6),
+                      border: Border.all(color: Colors.green.shade200),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.check_circle,
+                          color: Colors.green.shade600,
+                          size: 16,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          'Basado en tu estimación: ${userServingSize.toStringAsFixed(0)}g',
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.green.shade700,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Description: ', style: const TextStyle(fontWeight: FontWeight.bold)),
+                    const Text(
+                      'Descripción: ',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
                     Expanded(child: Text(foodData.description)),
                   ],
                 ),
@@ -96,40 +320,55 @@ class FoodScannerButton extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Calories: ', style: const TextStyle(fontWeight: FontWeight.bold)),
-                    Text('${foodData.calories} Kcal'),
+                    const Text(
+                      'Calorías: ',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Text('${foodData.calories.toStringAsFixed(1)} Kcal'),
                   ],
                 ),
                 const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Proteins: ', style: const TextStyle(fontWeight: FontWeight.bold)),
-                    Text('${foodData.proteins} g'),
+                    const Text(
+                      'Proteínas: ',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Text('${foodData.proteins.toStringAsFixed(1)} g'),
                   ],
                 ),
                 const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Carbs: ', style: const TextStyle(fontWeight: FontWeight.bold)),
-                    Text('${foodData.carbs} g'),
+                    const Text(
+                      'Carbohidratos: ',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Text('${foodData.carbs.toStringAsFixed(1)} g'),
                   ],
                 ),
                 const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Fats: ', style: const TextStyle(fontWeight: FontWeight.bold)),
-                    Text('${foodData.fats} g'),
+                    const Text(
+                      'Grasas: ',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Text('${foodData.fats.toStringAsFixed(1)} g'),
                   ],
                 ),
                 const SizedBox(height: 8),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Serving Size: ', style: const TextStyle(fontWeight: FontWeight.bold)),
-                    Text('${foodData.servingSize} g'),
+                    const Text(
+                      'Tamaño de porción: ',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Text('${foodData.servingSize.toStringAsFixed(1)} g'),
                   ],
                 ),
               ],
@@ -137,31 +376,19 @@ class FoodScannerButton extends StatelessWidget {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Cancel'),
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Cancelar'),
             ),
-            TextButton(
+            ElevatedButton(
               onPressed: () async {
-                final success = await ImageProcessingService.saveFoodData(foodData, date: date);
-                Navigator.of(context).pop();
-
-                if (success) {
-                  EventBus().emitFoodAdded();
-
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Food added to your diary')),
-                  );
-
-                  if (Navigator.canPop(context)) {
-                    Navigator.popUntil(context, (route) => route.isFirst);
-                  }
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Failed to save food data')),
-                  );
-                }
+                Navigator.of(dialogContext).pop();
+                await _saveFoodData(foodData);
               },
-              child: const Text('Confirm'),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
+              child: const Text(
+                'Confirmar y Guardar',
+                style: TextStyle(color: Colors.white),
+              ),
             ),
           ],
         );
@@ -169,11 +396,56 @@ class FoodScannerButton extends StatelessWidget {
     );
   }
 
+  Future<void> _saveFoodData(FoodData foodData) async {
+    if (!mounted) return;
+
+    _showLoadingMessage('Guardando comida...');
+
+    try {
+      final success = await ImageProcessingService.saveFoodData(
+        foodData,
+        date: widget.date,
+      );
+
+      if (!mounted) return;
+
+      _hideCurrentMessage();
+
+      if (success) {
+        EventBus().emitFoodAdded();
+        _showMessage(
+          'Comida agregada a tu diario',
+          backgroundColor: Colors.green,
+        );
+
+        // Small delay to show the success message before navigating
+        await Future.delayed(const Duration(milliseconds: 500));
+
+        if (mounted) {
+          _navigateToHome();
+        }
+      } else {
+        _showMessage(
+          'Error al guardar la información de la comida',
+          backgroundColor: Colors.red,
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        _hideCurrentMessage();
+        _showMessage(
+          'Error al guardar: ${e.toString()}',
+          backgroundColor: Colors.red,
+        );
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return FloatingActionButton(
       onPressed: () => _showSourceSelection(context),
-      tooltip: 'Add Food',
+      tooltip: 'Agregar comida',
       child: const Icon(Icons.camera_alt),
     );
   }

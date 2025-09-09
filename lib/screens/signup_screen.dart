@@ -1,731 +1,1038 @@
-// lib/screens/signup_screen.dart
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-// import 'dart:convert';
-// import 'package:http/http.dart' as http;
-import '../services/auth_service.dart';
-import '../models/enums.dart';
+// // lib/screens/signup_screen.dart
+// import 'package:flutter/material.dart';
+// import 'package:flutter/services.dart';
+// import '../services/auth_service.dart';
+// import '../models/enums.dart';
 
-class SignupScreen extends StatefulWidget {
-  const SignupScreen({super.key});
+// class SignupScreen extends StatefulWidget {
+//   const SignupScreen({super.key});
 
-  @override
-  State<SignupScreen> createState() => _SignupScreenState();
-}
+//   @override
+//   State<SignupScreen> createState() => _SignupScreenState();
+// }
 
-class _SignupScreenState extends State<SignupScreen> {
-  final _formKey = GlobalKey<FormState>();
-  bool _isLoading = false;
-  bool _obscurePassword = true;
+// class _SignupScreenState extends State<SignupScreen> {
+//   final _formKey = GlobalKey<FormState>();
+//   bool _isLoading = false;
+//   bool _obscurePassword = true;
   
-  // Track current step
-  int _currentStep = 0;
+//   // Track current step
+//   int _currentStep = 0;
+//   final int _totalSteps = 4;
   
-  // Health advisor data
-  Map<String, dynamic>? _healthAdvice;
-  bool _isLoadingHealthAdvice = false;
+//   // Health advisor data
+//   Map<String, dynamic>? _healthAdvice;
+//   bool _isLoadingHealthAdvice = false;
   
-  // Text controllers
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _lastNameController = TextEditingController();
-  final TextEditingController _ageController = TextEditingController();
-  final TextEditingController _heightController = TextEditingController();
-  final TextEditingController _weightController = TextEditingController();
-  final TextEditingController _weightGoalController = TextEditingController();
+//   // Text controllers
+//   final TextEditingController _emailController = TextEditingController();
+//   final TextEditingController _passwordController = TextEditingController();
+//   final TextEditingController _nameController = TextEditingController();
+//   final TextEditingController _lastNameController = TextEditingController();
+//   final TextEditingController _heightController = TextEditingController();
+//   final TextEditingController _weightController = TextEditingController();
+//   final TextEditingController _weightGoalController = TextEditingController();
   
-  // Dropdown values
-  Gender _selectedGender = Gender.MALE;
-  ActivityLevel _selectedActivityLevel = ActivityLevel.MODERATE;
-  CaloricAdjustment _selectedCaloricAdjustment = CaloricAdjustment.MAINTAIN;
+//   // Date for age
+//   DateTime? _selectedDate;
+  
+//   // Dropdown values
+//   Gender _selectedGender = Gender.MALE;
+//   ActivityLevel _selectedActivityLevel = ActivityLevel.MODERATE;
+//   CaloricAdjustment _selectedCaloricAdjustment = CaloricAdjustment.MAINTAIN;
 
-  // To track if each step is valid
-  bool _isStep1Valid = false;
+//   @override
+//   void dispose() {
+//     _emailController.dispose();
+//     _passwordController.dispose();
+//     _nameController.dispose();
+//     _lastNameController.dispose();
+//     _heightController.dispose();
+//     _weightController.dispose();
+//     _weightGoalController.dispose();
+//     super.dispose();
+//   }
 
-  // Spacing constants
-  static const double _spacingSmall = 12.0;
-  static const double _spacingMedium = 16.0;
-  static const double _spacingLarge = 24.0;
-  static const double _spacingXLarge = 32.0;
+//   // Calculate age from selected date
+//   int get _calculatedAge {
+//     if (_selectedDate == null) return 0;
+//     final now = DateTime.now();
+//     int age = now.year - _selectedDate!.year;
+//     if (now.month < _selectedDate!.month || 
+//         (now.month == _selectedDate!.month && now.day < _selectedDate!.day)) {
+//       age--;
+//     }
+//     return age;
+//   }
 
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    _nameController.dispose();
-    _lastNameController.dispose();
-    _ageController.dispose();
-    _heightController.dispose();
-    _weightController.dispose();
-    _weightGoalController.dispose();
-    super.dispose();
-  }
-
-  // Validate step 1 (Basic Information)
-  void _validateStep1() {
-    _isStep1Valid = _nameController.text.isNotEmpty &&
-        _lastNameController.text.isNotEmpty &&
-        _emailController.text.isNotEmpty &&
-        RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(_emailController.text) &&
-        _passwordController.text.length >= 6 &&
-        _ageController.text.isNotEmpty &&
-        (int.tryParse(_ageController.text) ?? 0) >= 13 &&
-        (int.tryParse(_ageController.text) ?? 0) <= 120;
+//   // Validate step 1 (Basic Information)
+//   void _validateStep1() {
+//     // Check all required fields
+//     if (_nameController.text.trim().isEmpty) {
+//       _showErrorDialog('Por favor ingresa tu nombre');
+//       return;
+//     }
+//     if (_lastNameController.text.trim().isEmpty) {
+//       _showErrorDialog('Por favor ingresa tu apellido');
+//       return;
+//     }
+//     if (_emailController.text.trim().isEmpty) {
+//       _showErrorDialog('Por favor ingresa tu correo electrónico');
+//       return;
+//     }
+//     if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(_emailController.text.trim())) {
+//       _showErrorDialog('Por favor ingresa un correo electrónico válido');
+//       return;
+//     }
+//     if (_passwordController.text.length < 6) {
+//       _showErrorDialog('La contraseña debe tener al menos 6 caracteres');
+//       return;
+//     }
+//     if (_selectedDate == null) {
+//       _showErrorDialog('Por favor selecciona tu fecha de nacimiento');
+//       return;
+//     }
+//     if (_calculatedAge < 13) {
+//       _showErrorDialog('Debes tener al menos 13 años para usar la aplicación');
+//       return;
+//     }
+//     if (_calculatedAge > 120) {
+//       _showErrorDialog('Por favor verifica tu fecha de nacimiento');
+//       return;
+//     }
     
-    if (_isStep1Valid) {
-      setState(() {
-        _currentStep = 1;
-      });
-    }
-  }
+//     setState(() {
+//       _currentStep = 1;
+//     });
+//   }
 
-// Validate step 2 (Physical Measurements) and fetch health advice
-Future<void> _validateStep2() async {
-  bool isValid = _heightController.text.isNotEmpty &&
-      _weightController.text.isNotEmpty &&
-      (double.tryParse(_heightController.text) ?? 0) >= 50 &&
-      (double.tryParse(_heightController.text) ?? 0) <= 250 &&
-      (double.tryParse(_weightController.text) ?? 0) >= 20 &&
-      (double.tryParse(_weightController.text) ?? 0) <= 300;
-  
-  if (isValid) {
-    setState(() {
-      _isLoadingHealthAdvice = true;
-    });
+//   // Validate step 2 (Physical Measurements) and fetch health advice
+//   Future<void> _validateStep2() async {
+//     // Validate height
+//     if (_heightController.text.trim().isEmpty) {
+//       _showErrorDialog('Por favor ingresa tu altura');
+//       return;
+//     }
+//     double? height = double.tryParse(_heightController.text.trim());
+//     if (height == null || height < 50 || height > 250) {
+//       _showErrorDialog('Por favor ingresa una altura válida entre 50 y 250 cm');
+//       return;
+//     }
     
-    try {
-      // Use the AuthService instead of direct API call
-      final data = await AuthService.getHealthAdvice(
-        double.parse(_heightController.text),
-        double.parse(_weightController.text)
-      );
+//     // Validate weight
+//     if (_weightController.text.trim().isEmpty) {
+//       _showErrorDialog('Por favor ingresa tu peso');
+//       return;
+//     }
+//     double? weight = double.tryParse(_weightController.text.trim());
+//     if (weight == null || weight < 20 || weight > 300) {
+//       _showErrorDialog('Por favor ingresa un peso válido entre 20 y 300 kg');
+//       return;
+//     }
+    
+//     setState(() {
+//       _isLoadingHealthAdvice = true;
+//     });
+    
+//     try {
+//       final data = await AuthService.getHealthAdvice(height, weight);
       
-      if (data != null) {
-        setState(() {
-          _healthAdvice = data;
-          _currentStep = 2; // Move to step 3 (Target Weight) - keep this as is
+//       if (data != null) {
+//         setState(() {
+//           _healthAdvice = data;
+//           _currentStep = 2;
           
-          // Pre-select caloric adjustment based on advice
-          if (data['suggestedGoal'] == 'LOSS') {
-            _selectedCaloricAdjustment = CaloricAdjustment.LOSS;
-          } else if (data['suggestedGoal'] == 'GAIN') {
-            _selectedCaloricAdjustment = CaloricAdjustment.GAIN;
-          } else {
-            _selectedCaloricAdjustment = CaloricAdjustment.MAINTAIN;
-          }
-        });
-      } else {
-        _showErrorDialog('Failed to get health advice. Please try again.');
-      }
-    } catch (e) {
-      _showErrorDialog('Error: ${e.toString()}');
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoadingHealthAdvice = false;
-        });
-      }
-    }
-  }
-}
+//           // Pre-select caloric adjustment based on advice
+//           if (data['suggestedGoal'] == 'LOSS') {
+//             _selectedCaloricAdjustment = CaloricAdjustment.LOSS;
+//           } else if (data['suggestedGoal'] == 'GAIN') {
+//             _selectedCaloricAdjustment = CaloricAdjustment.GAIN;
+//           } else {
+//             _selectedCaloricAdjustment = CaloricAdjustment.MAINTAIN;
+//           }
+//         });
+//       } else {
+//         _showErrorDialog('No se pudieron obtener consejos de salud. Por favor intenta de nuevo.');
+//       }
+//     } catch (e) {
+//       _showErrorDialog('Error al obtener consejos de salud: ${e.toString()}');
+//     } finally {
+//       if (mounted) {
+//         setState(() {
+//           _isLoadingHealthAdvice = false;
+//         });
+//       }
+//     }
+//   }
 
-  // Go back to previous step
-  void _goBack() {
-    setState(() {
-      if (_currentStep > 0) {
-        _currentStep--;
-      }
-    });
-  }
+//   // Go back to previous step
+//   void _goBack() {
+//     setState(() {
+//       if (_currentStep > 0) {
+//         _currentStep--;
+//       }
+//     });
+//   }
 
-  Future<void> _signup() async {
-    setState(() => _isLoading = true);
+//   // Date picker for age
+//   Future<void> _selectDate() async {
+//     final DateTime? picked = await showDatePicker(
+//       context: context,
+//       initialDate: _selectedDate ?? DateTime(2000),
+//       firstDate: DateTime(1900),
+//       lastDate: DateTime.now().subtract(const Duration(days: 365 * 13)), // Minimum 13 years old
+//       builder: (context, child) {
+//         return Theme(
+//           data: Theme.of(context).copyWith(
+//             colorScheme: ColorScheme.light(
+//               primary: const Color(0xFF066FFF),
+//               onPrimary: Colors.white,
+//               surface: Colors.white,
+//               onSurface: const Color(0xFF066FFF),
+//             ),
+//           ),
+//           child: child!,
+//         );
+//       },
+//     );
+//     if (picked != null && picked != _selectedDate) {
+//       setState(() {
+//         _selectedDate = picked;
+//       });
+//     }
+//   }
+
+//   Future<void> _signup() async {
+//     setState(() => _isLoading = true);
     
-    try {
-      final userData = {
-        'email': _emailController.text,
-        'password': _passwordController.text,
-        'name': _nameController.text,
-        'lastName': _lastNameController.text,
-        'age': int.parse(_ageController.text),
-        'gender': _selectedGender.toString().split('.').last,
-        'height': double.parse(_heightController.text),
-        'weight': double.parse(_weightController.text),
-        'weightGoal': double.parse(_weightGoalController.text),
-        'activityLevel': _selectedActivityLevel.toString().split('.').last,
-        'caloricAdjustment': _selectedCaloricAdjustment.toString().split('.').last,
-      };
+//     try {
+//       final userData = {
+//         'email': _emailController.text.trim(),
+//         'password': _passwordController.text,
+//         'name': _nameController.text.trim(),
+//         'lastName': _lastNameController.text.trim(),
+//         'age': _calculatedAge,
+//         'gender': _selectedGender.toString().split('.').last,
+//         'height': double.parse(_heightController.text.trim()),
+//         'weight': double.parse(_weightController.text.trim()),
+//         'weightGoal': double.parse(_weightGoalController.text.trim()),
+//         'activityLevel': _selectedActivityLevel.toString().split('.').last,
+//         'caloricAdjustment': _selectedCaloricAdjustment.toString().split('.').last,
+//       };
 
-      print('userData: $userData');
+//       print('userData: $userData');
       
-      final result = await AuthService.signup(userData);
+//       final result = await AuthService.signup(userData);
       
-      if (result == true) {
-        Navigator.pushReplacementNamed(context, '/home');
-      } else {
-        if (mounted) {
-          _showErrorDialog('Signup failed. Please check your information and try again.');
-        }
-      }
-    } catch (e) {
-      if (mounted) {
-        _showErrorDialog('Error during signup: ${e.toString()}');
-      }
-    } finally {
-      if (mounted) {
-        setState(() => _isLoading = false);
-      }
-    }
-  }
+//       if (result == true) {
+//         if (mounted) {
+//           Navigator.pushReplacementNamed(context, '/home');
+//         }
+//       } else {
+//         if (mounted) {
+//           String errorMessage = 'Error al crear la cuenta';
+//           if (result is String) {
+//             errorMessage = result;
+//           }
+//           _showErrorDialog(errorMessage);
+//         }
+//       }
+//     } catch (e) {
+//       if (mounted) {
+//         _showErrorDialog('Error de conexión: ${e.toString()}');
+//       }
+//     } finally {
+//       if (mounted) {
+//         setState(() => _isLoading = false);
+//       }
+//     }
+//   }
 
-  void _showErrorDialog(String message) {
-    showDialog(
-      context: context,
-      builder: (_) => AlertDialog(
-        title: const Text('Error'),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          ),
-        ],
-      ),
-    );
-  }
+//   void _showErrorDialog(String message) {
+//     showDialog(
+//       context: context,
+//       builder: (_) => AlertDialog(
+//         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+//         title: const Text('Error'),
+//         content: Text(message),
+//         actions: [
+//           TextButton(
+//             onPressed: () => Navigator.pop(context),
+//             child: const Text('OK'),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
 
-  // Get calculated healthy weight range in user-friendly format
-  String _getHealthyWeightRange() {
-    if (_healthAdvice == null) return '';
+//   // Get calculated healthy weight range in user-friendly format
+//   String _getHealthyWeightRange() {
+//     if (_healthAdvice == null) return '';
     
-    double minWeight = _healthAdvice!['minWeight'];
-    double maxWeight = _healthAdvice!['maxWeight'];
+//     double minWeight = _healthAdvice!['minWeight'];
+//     double maxWeight = _healthAdvice!['maxWeight'];
     
-    return '${minWeight.toStringAsFixed(1)} - ${maxWeight.toStringAsFixed(1)} kg';
-  }
+//     return '${minWeight.toStringAsFixed(1)} - ${maxWeight.toStringAsFixed(1)} kg';
+//   }
 
-  @override
-Widget build(BuildContext context) {
-  return Scaffold(
-    appBar: AppBar(
-      title: const Text('Sign Up'),
-      leading: _currentStep > 0
-          ? IconButton(
-              icon: const Icon(Icons.arrow_back),
-              onPressed: _goBack,
-            )
-          : null,
-    ),
-    body: _isLoading
-        ? const Center(child: CircularProgressIndicator())
-        : SingleChildScrollView(
-            padding: const EdgeInsets.all(_spacingMedium),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  // Step indicator
-                  StepIndicator(currentStep: _currentStep),
-                  const SizedBox(height: _spacingLarge),
-                  
-                  // Step 1: Basic Information
-                  if (_currentStep == 0) _buildBasicInfoStep(),
-                  
-                  // Step 2: Physical Measurements
-                  if (_currentStep == 1) _buildPhysicalMeasurementsStep(),
-                  
-                  // Step 3: Target Weight
-                  if (_currentStep == 2) _buildTargetWeightStep(),
-                  
-                  // Step 4: Activity & Goals
-                  if (_currentStep == 3) _buildActivityGoalsStep(),
-                  
-                  const SizedBox(height: _spacingMedium),
-                  if (_currentStep == 0)
-                    TextButton(
-                      onPressed: () => Navigator.pushReplacementNamed(context, '/login'),
-                      child: const Text('Already have an account? Login'),
-                    ),
-                ],
-              ),
-            ),
-          ),
-    );
-  }
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       backgroundColor: Colors.white,
+//       appBar: AppBar(
+//         backgroundColor: Colors.white,
+//         elevation: 0,
+//         leading: _currentStep > 0
+//             ? IconButton(
+//                 icon: const Icon(Icons.arrow_back, color: Color(0xFF066FFF)),
+//                 onPressed: _goBack,
+//               )
+//             : null,
+//         title: const Text(
+//           'Registro',
+//           style: TextStyle(
+//             color: Color(0xFF066FFF),
+//             fontWeight: FontWeight.w600,
+//           ),
+//         ),
+//         centerTitle: true,
+//       ),
+//       body: _isLoading
+//           ? const Center(child: CircularProgressIndicator())
+//           : Column(
+//               children: [
+//                 // Progress bar
+//                 Container(
+//                   height: 4,
+//                   margin: const EdgeInsets.symmetric(horizontal: 20),
+//                   child: LinearProgressIndicator(
+//                     value: (_currentStep + 1) / _totalSteps,
+//                     backgroundColor: Colors.grey.shade200,
+//                     valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF066FFF)),
+//                   ),
+//                 ),
+//                 Expanded(
+//                   child: SingleChildScrollView(
+//                     padding: EdgeInsets.fromLTRB(
+//                       20, 
+//                       20, 
+//                       20, 
+//                       MediaQuery.of(context).viewInsets.bottom + 20
+//                     ),
+//                     child: Form(
+//                       key: _formKey,
+//                       child: Column(
+//                         crossAxisAlignment: CrossAxisAlignment.stretch,
+//                         children: [
+//                           SizedBox(height: MediaQuery.of(context).size.height * 0.02),
+                          
+//                           // Step content
+//                           if (_currentStep == 0) _buildBasicInfoStep(),
+//                           if (_currentStep == 1) _buildPhysicalMeasurementsStep(),
+//                           if (_currentStep == 2) _buildTargetWeightStep(),
+//                           if (_currentStep == 3) _buildActivityGoalsStep(),
+                          
+//                           SizedBox(height: MediaQuery.of(context).size.height * 0.02),
+//                           if (_currentStep == 0)
+//                             TextButton(
+//                               onPressed: () => Navigator.pushReplacementNamed(context, '/login'),
+//                               child: const Text(
+//                                 '¿Ya tienes una cuenta? Inicia sesión',
+//                                 style: TextStyle(color: Color(0xFF066FFF)),
+//                               ),
+//                             ),
+//                         ],
+//                       ),
+//                     ),
+//                   ),
+//                 ),
+//               ],
+//             ),
+//     );
+//   }
 
-  // Create a reusable form field
-  Widget _buildFormField({
-    required TextEditingController controller,
-    required String label,
-    required IconData icon,
-    TextInputType keyboardType = TextInputType.text,
-    TextInputAction textInputAction = TextInputAction.next,
-    List<TextInputFormatter>? inputFormatters,
-    bool obscureText = false,
-    Widget? suffix,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: _spacingSmall),
-      child: TextFormField(
-        controller: controller,
-        decoration: InputDecoration(
-          labelText: label,
-          prefixIcon: Icon(icon),
-          suffixIcon: suffix,
-        ),
-        keyboardType: keyboardType,
-        textInputAction: textInputAction,
-        inputFormatters: inputFormatters,
-        obscureText: obscureText,
-        onChanged: (_) => setState(() {}),
-      ),
-    );
-  }
+//   // Create a reusable form field with modern design
+//   Widget _buildFormField({
+//     required TextEditingController controller,
+//     required String label,
+//     required IconData icon,
+//     TextInputType keyboardType = TextInputType.text,
+//     TextInputAction textInputAction = TextInputAction.next,
+//     List<TextInputFormatter>? inputFormatters,
+//     bool obscureText = false,
+//     Widget? suffix,
+//     VoidCallback? onTap,
+//     bool readOnly = false,
+//   }) {
+//     return Container(
+//       margin: const EdgeInsets.only(bottom: 16),
+//       decoration: BoxDecoration(
+//         color: Colors.grey.shade50,
+//         borderRadius: BorderRadius.circular(12),
+//         border: Border.all(color: Colors.grey.shade200),
+//       ),
+//       child: TextFormField(
+//         controller: controller,
+//         decoration: InputDecoration(
+//           labelText: label,
+//           labelStyle: const TextStyle(color: Colors.grey),
+//           prefixIcon: Icon(icon, color: const Color(0xFF066FFF)),
+//           suffixIcon: suffix,
+//           border: InputBorder.none,
+//           contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+//         ),
+//         keyboardType: keyboardType,
+//         textInputAction: textInputAction,
+//         inputFormatters: inputFormatters,
+//         obscureText: obscureText,
+//         readOnly: readOnly,
+//         onTap: onTap,
+//         onChanged: (_) => setState(() {}),
+//       ),
+//     );
+//   }
 
-  // Step 1: Basic Information
-  Widget _buildBasicInfoStep() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        const SectionHeader(title: 'Basic Information'),
-        
-        _buildFormField(
-          controller: _nameController,
-          label: 'First Name',
-          icon: Icons.person,
-        ),
-        
-        _buildFormField(
-          controller: _lastNameController,
-          label: 'Last Name',
-          icon: Icons.person,
-        ),
-        
-        _buildFormField(
-          controller: _emailController,
-          label: 'Email',
-          icon: Icons.email,
-          keyboardType: TextInputType.emailAddress,
-        ),
-        
-        _buildFormField(
-          controller: _passwordController,
-          label: 'Password',
-          icon: Icons.lock,
-          obscureText: _obscurePassword,
-          suffix: IconButton(
-            icon: Icon(
-              _obscurePassword ? Icons.visibility : Icons.visibility_off,
-            ),
-            onPressed: () {
-              setState(() {
-                _obscurePassword = !_obscurePassword;
-              });
-            },
-          ),
-        ),
-        
-        _buildFormField(
-          controller: _ageController,
-          label: 'Age',
-          icon: Icons.cake,
-          keyboardType: TextInputType.number,
-          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-        ),
-        
-        Padding(
-          padding: const EdgeInsets.only(bottom: _spacingSmall),
-          child: DropdownButtonFormField<Gender>(
-            value: _selectedGender,
-            decoration: const InputDecoration(
-              labelText: 'Gender',
-              prefixIcon: Icon(Icons.person_outline),
-            ),
-            items: Gender.values.map((gender) {
-              return DropdownMenuItem(
-                value: gender,
-                child: Text(gender.displayName),
-              );
-            }).toList(),
-            onChanged: (Gender? newValue) {
-              if (newValue != null) {
-                setState(() {
-                  _selectedGender = newValue;
-                });
-              }
-            },
-          ),
-        ),
-        
-        const SizedBox(height: _spacingLarge),
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: _spacingMedium),
-          ),
-          onPressed: (_nameController.text.isNotEmpty &&
-                      _lastNameController.text.isNotEmpty &&
-                      _emailController.text.isNotEmpty &&
-                      _passwordController.text.isNotEmpty &&
-                      _ageController.text.isNotEmpty)
-              ? _validateStep1
-              : null,
-          child: const Text('Next', style: TextStyle(fontSize: 16)),
-        ),
-      ],
-    );
-  }
+//   // Create selectable option cards
+//   Widget _buildOptionCard({
+//     required String title,
+//     required String subtitle,
+//     required IconData icon,
+//     required bool isSelected,
+//     required VoidCallback onTap,
+//   }) {
+//     return GestureDetector(
+//       onTap: onTap,
+//       child: Container(
+//         margin: const EdgeInsets.only(bottom: 12),
+//         padding: const EdgeInsets.all(16),
+//         decoration: BoxDecoration(
+//           color: isSelected ? const Color(0xFF066FFF).withOpacity(0.1) : Colors.grey.shade50,
+//           borderRadius: BorderRadius.circular(12),
+//           border: Border.all(
+//             color: isSelected ? const Color(0xFF066FFF) : Colors.grey.shade200,
+//             width: isSelected ? 2 : 1,
+//           ),
+//         ),
+//         child: Row(
+//           children: [
+//             Container(
+//               padding: const EdgeInsets.all(8),
+//               decoration: BoxDecoration(
+//                 color: isSelected ? const Color(0xFF066FFF) : Colors.orange,
+//                 borderRadius: BorderRadius.circular(8),
+//               ),
+//               child: Icon(icon, color: Colors.white, size: 20),
+//             ),
+//             const SizedBox(width: 16),
+//             Expanded(
+//               child: Column(
+//                 crossAxisAlignment: CrossAxisAlignment.start,
+//                 children: [
+//                   Text(
+//                     title,
+//                     style: TextStyle(
+//                       fontSize: 16,
+//                       fontWeight: FontWeight.w600,
+//                       color: isSelected ? const Color(0xFF066FFF) : Colors.black87,
+//                     ),
+//                   ),
+//                   const SizedBox(height: 4),
+//                   Text(
+//                     subtitle,
+//                     style: TextStyle(
+//                       fontSize: 14,
+//                       color: Colors.grey.shade600,
+//                     ),
+//                   ),
+//                 ],
+//               ),
+//             ),
+//             if (isSelected)
+//               const Icon(
+//                 Icons.check_circle,
+//                 color: Color(0xFF066FFF),
+//                 size: 24,
+//               ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
 
-  // Step 2: Physical Measurements
-  Widget _buildPhysicalMeasurementsStep() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        const SectionHeader(title: 'Physical Measurements'),
+//   // Step 1: Basic Information
+//   Widget _buildBasicInfoStep() {
+//     return Column(
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+//         // Header with icon
+//         Container(
+//           width: MediaQuery.of(context).size.width * 0.18,
+//           height: MediaQuery.of(context).size.width * 0.18,
+//           constraints: const BoxConstraints(
+//             minWidth: 60,
+//             minHeight: 60,
+//             maxWidth: 80,
+//             maxHeight: 80,
+//           ),
+//           margin: EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.03),
+//           decoration: BoxDecoration(
+//             color: Colors.orange.withOpacity(0.1),
+//             shape: BoxShape.circle,
+//           ),
+//           child: Icon(
+//             Icons.person,
+//             size: MediaQuery.of(context).size.width * 0.09,
+//             color: Colors.orange,
+//           ),
+//         ),
         
-        _buildFormField(
-          controller: _heightController,
-          label: 'Height (cm)',
-          icon: Icons.height,
-          keyboardType: TextInputType.number,
-          inputFormatters: [
-            FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
-          ],
-        ),
+//         Text(
+//           'Sobre ti',
+//           style: TextStyle(
+//             fontSize: MediaQuery.of(context).size.width * 0.07,
+//             fontWeight: FontWeight.bold,
+//             color: Colors.black87,
+//           ),
+//         ),
+//         const SizedBox(height: 8),
+//         Text(
+//           'Esto nos ayudará a calcular tus calorías objetivo',
+//           style: TextStyle(
+//             fontSize: MediaQuery.of(context).size.width * 0.04,
+//             color: Colors.grey.shade600,
+//           ),
+//         ),
+//         SizedBox(height: MediaQuery.of(context).size.height * 0.04),
         
-        _buildFormField(
-          controller: _weightController,
-          label: 'Current Weight (kg)',
-          icon: Icons.monitor_weight,
-          keyboardType: TextInputType.number,
-          textInputAction: TextInputAction.done,
-          inputFormatters: [
-            FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
-          ],
-        ),
+//         _buildFormField(
+//           controller: _nameController,
+//           label: 'Nombre',
+//           icon: Icons.person,
+//         ),
         
-        const SizedBox(height: _spacingLarge),
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: _spacingMedium),
-          ),
-          onPressed: _isLoadingHealthAdvice 
-              ? null 
-              : (_heightController.text.isNotEmpty && _weightController.text.isNotEmpty)
-                  ? _validateStep2
-                  : null,
-          child: _isLoadingHealthAdvice
-              ? const SizedBox(
-                  height: 20,
-                  width: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : const Text('Get Health Advice', style: TextStyle(fontSize: 16)),
-        ),
-      ],
-    );
-  }
+//         _buildFormField(
+//           controller: _lastNameController,
+//           label: 'Apellido',
+//           icon: Icons.person,
+//         ),
+        
+//         _buildFormField(
+//           controller: _emailController,
+//           label: 'Correo electrónico',
+//           icon: Icons.email,
+//           keyboardType: TextInputType.emailAddress,
+//         ),
+        
+//         _buildFormField(
+//           controller: _passwordController,
+//           label: 'Contraseña',
+//           icon: Icons.lock,
+//           obscureText: _obscurePassword,
+//           suffix: IconButton(
+//             icon: Icon(
+//               _obscurePassword ? Icons.visibility : Icons.visibility_off,
+//               color: const Color(0xFF066FFF),
+//             ),
+//             onPressed: () {
+//               setState(() {
+//                 _obscurePassword = !_obscurePassword;
+//               });
+//             },
+//           ),
+//         ),
+        
+//         // Age selection with date picker
+//         GestureDetector(
+//           onTap: _selectDate,
+//           child: Container(
+//             margin: const EdgeInsets.only(bottom: 16),
+//             padding: const EdgeInsets.all(16),
+//             decoration: BoxDecoration(
+//               color: Colors.grey.shade50,
+//               borderRadius: BorderRadius.circular(12),
+//               border: Border.all(color: Colors.grey.shade200),
+//             ),
+//             child: Row(
+//               children: [
+//                 const Icon(Icons.cake, color: Color(0xFF066FFF)),
+//                 const SizedBox(width: 16),
+//                 Expanded(
+//                   child: Column(
+//                     crossAxisAlignment: CrossAxisAlignment.start,
+//                     children: [
+//                       Text(
+//                         'Fecha de nacimiento',
+//                         style: TextStyle(
+//                           color: Colors.grey.shade600,
+//                           fontSize: 12,
+//                         ),
+//                       ),
+//                       const SizedBox(height: 4),
+//                       Text(
+//                         _selectedDate != null 
+//                             ? '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year} (${_calculatedAge} años)'
+//                             : 'Selecciona tu fecha de nacimiento',
+//                         style: TextStyle(
+//                           color: _selectedDate != null ? Colors.black87 : Colors.grey,
+//                           fontSize: 16,
+//                         ),
+//                       ),
+//                     ],
+//                   ),
+//                 ),
+//                 const Icon(Icons.arrow_forward_ios, color: Colors.orange, size: 16),
+//               ],
+//             ),
+//           ),
+//         ),
+        
+//         // Gender selection cards
+//         const Text(
+//           'Sexo',
+//           style: TextStyle(
+//             fontSize: 18,
+//             fontWeight: FontWeight.w600,
+//             color: Colors.black87,
+//           ),
+//         ),
+//         const SizedBox(height: 16),
+        
+//         _buildOptionCard(
+//           title: 'Hombre',
+//           subtitle: 'Selecciona si eres hombre',
+//           icon: Icons.male,
+//           isSelected: _selectedGender == Gender.MALE,
+//           onTap: () => setState(() => _selectedGender = Gender.MALE),
+//         ),
+        
+//         _buildOptionCard(
+//           title: 'Mujer', 
+//           subtitle: 'Selecciona si eres mujer',
+//           icon: Icons.female,
+//           isSelected: _selectedGender == Gender.FEMALE,
+//           onTap: () => setState(() => _selectedGender = Gender.FEMALE),
+//         ),
+        
+//         SizedBox(height: MediaQuery.of(context).size.height * 0.04),
+//         SizedBox(
+//           width: double.infinity,
+//           child: ElevatedButton(
+//             style: ElevatedButton.styleFrom(
+//               backgroundColor: const Color(0xFF066FFF),
+//               padding: const EdgeInsets.symmetric(vertical: 16),
+//               shape: RoundedRectangleBorder(
+//                 borderRadius: BorderRadius.circular(12),
+//               ),
+//             ),
+//             onPressed: (_nameController.text.trim().isNotEmpty &&
+//                         _lastNameController.text.trim().isNotEmpty &&
+//                         _emailController.text.trim().isNotEmpty &&
+//                         _passwordController.text.isNotEmpty &&
+//                         _selectedDate != null)
+//                 ? _validateStep1
+//                 : null,
+//             child: const Text(
+//               'Continuar',
+//               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
+//             ),
+//           ),
+//         ),
+//       ],
+//     );
+//   }
 
-  // Step 3: Target Weight Step
-Widget _buildTargetWeightStep() {
-  // Determine weight goal suggestion message and style
-  String goalMessage = '';
-  Color goalColor = Colors.blue;
-  IconData goalIcon = Icons.info;
-  
-  if (_healthAdvice != null) {
-    String suggestedGoal = _healthAdvice!['suggestedGoal'];
-    String healthyRange = _getHealthyWeightRange();
+//   // Step 2: Physical Measurements
+//   Widget _buildPhysicalMeasurementsStep() {
+//     return Column(
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+//         // Header with icon
+//         Container(
+//           width: MediaQuery.of(context).size.width * 0.18,
+//           height: MediaQuery.of(context).size.width * 0.18,
+//           constraints: const BoxConstraints(
+//             minWidth: 60,
+//             minHeight: 60,
+//             maxWidth: 80,
+//             maxHeight: 80,
+//           ),
+//           margin: EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.03),
+//           decoration: BoxDecoration(
+//             color: Colors.orange.withOpacity(0.1),
+//             shape: BoxShape.circle,
+//           ),
+//           child: Icon(
+//             Icons.monitor_weight,
+//             size: MediaQuery.of(context).size.width * 0.09,
+//             color: Colors.orange,
+//           ),
+//         ),
+        
+//         Text(
+//           'Medidas físicas',
+//           style: TextStyle(
+//             fontSize: MediaQuery.of(context).size.width * 0.07,
+//             fontWeight: FontWeight.bold,
+//             color: Colors.black87,
+//           ),
+//         ),
+//         const SizedBox(height: 8),
+//         Text(
+//           'Cuéntanos sobre tus estadísticas físicas actuales',
+//           style: TextStyle(
+//             fontSize: MediaQuery.of(context).size.width * 0.04,
+//             color: Colors.grey.shade600,
+//           ),
+//         ),
+//         SizedBox(height: MediaQuery.of(context).size.height * 0.04),
+        
+//         _buildFormField(
+//           controller: _heightController,
+//           label: 'Altura (cm)',
+//           icon: Icons.height,
+//           keyboardType: TextInputType.number,
+//           inputFormatters: [
+//             FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+//           ],
+//         ),
+        
+//         _buildFormField(
+//           controller: _weightController,
+//           label: 'Peso actual (kg)',
+//           icon: Icons.monitor_weight,
+//           keyboardType: TextInputType.number,
+//           textInputAction: TextInputAction.done,
+//           inputFormatters: [
+//             FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+//           ],
+//         ),
+        
+//         SizedBox(height: MediaQuery.of(context).size.height * 0.04),
+//         SizedBox(
+//           width: double.infinity,
+//           child: ElevatedButton(
+//             style: ElevatedButton.styleFrom(
+//               backgroundColor: const Color(0xFF066FFF),
+//               padding: const EdgeInsets.symmetric(vertical: 16),
+//               shape: RoundedRectangleBorder(
+//                 borderRadius: BorderRadius.circular(12),
+//               ),
+//             ),
+//             onPressed: _isLoadingHealthAdvice 
+//                 ? null 
+//                 : (_heightController.text.trim().isNotEmpty && _weightController.text.trim().isNotEmpty)
+//                     ? _validateStep2
+//                     : null,
+//             child: _isLoadingHealthAdvice
+//                 ? const SizedBox(
+//                     height: 20,
+//                     width: 20,
+//                     child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+//                   )
+//                 : const Text(
+//                     'Obtener consejos de salud',
+//                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
+//                   ),
+//           ),
+//         ),
+//       ],
+//     );
+//   }
+
+//   // Step 3: Target Weight Step
+//   Widget _buildTargetWeightStep() {
+//     // Determine weight goal suggestion message and style
+//     String goalMessage = '';
+//     Color goalColor = Colors.blue;
+//     IconData goalIcon = Icons.info;
     
-    if (suggestedGoal == 'LOSS') {
-      goalMessage = 'Nutria recommends weight loss for optimal health. Your healthy weight range is $healthyRange.';
-      goalColor = Colors.orange;
-      goalIcon = Icons.trending_down;
-    } else if (suggestedGoal == 'GAIN') {
-      goalMessage = 'Nutria recommends gaining weight for optimal health. Your healthy weight range is $healthyRange.';
-      goalColor = Colors.green;
-      goalIcon = Icons.trending_up;
-    } else {
-      goalMessage = 'Your weight is within a healthy range of $healthyRange. Nutria recommends maintaining your current weight.';
-      goalColor = Colors.blue;
-      goalIcon = Icons.check_circle;
-    }
-  }
+//     if (_healthAdvice != null) {
+//       String suggestedGoal = _healthAdvice!['suggestedGoal'];
+//       String healthyRange = _getHealthyWeightRange();
+      
+//       if (suggestedGoal == 'LOSS') {
+//         goalMessage = 'Nutria recomienda pérdida de peso para una salud óptima. Tu rango de peso saludable es $healthyRange.';
+//         goalColor = Colors.orange;
+//         goalIcon = Icons.trending_down;
+//       } else if (suggestedGoal == 'GAIN') {
+//         goalMessage = 'Nutria recomienda ganar peso para una salud óptima. Tu rango de peso saludable es $healthyRange.';
+//         goalColor = Colors.green;
+//         goalIcon = Icons.trending_up;
+//       } else {
+//         goalMessage = 'Tu peso está dentro del rango saludable de $healthyRange. Nutria recomienda mantener tu peso actual.';
+//         goalColor = Colors.blue;
+//         goalIcon = Icons.check_circle;
+//       }
+//     }
 
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      const SectionHeader(title: 'Set Your Target Weight'),
-      
-      // Health advice message
-      if (_healthAdvice != null)
-        Container(
-          margin: const EdgeInsets.only(bottom: _spacingMedium),
-          padding: const EdgeInsets.all(_spacingMedium),
-          decoration: BoxDecoration(
-            color: goalColor.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: goalColor.withOpacity(0.3)),
-          ),
-          child: Row(
-            children: [
-              Icon(goalIcon, color: goalColor, size: 28),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  goalMessage,
-                  style: TextStyle(
-                    color: goalColor,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      
-      _buildFormField(
-        controller: _weightGoalController,
-        label: 'Target Weight (kg)',
-        icon: Icons.flag,
-        keyboardType: TextInputType.number,
-        inputFormatters: [
-          FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
-        ],
-      ),
-      
-      const SizedBox(height: _spacingLarge),
-      ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: _spacingMedium),
-        ),
-        onPressed: _weightGoalController.text.isEmpty ? null : () {
-          setState(() {
-            _currentStep = 3;
-          });
-        },
-        child: const Text('Next', style: TextStyle(fontSize: 16)),
-      ),
-    ],
-  );
-}
+//     return Column(
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+//         // Header with icon
+//         Container(
+//           width: MediaQuery.of(context).size.width * 0.18,
+//           height: MediaQuery.of(context).size.width * 0.18,
+//           constraints: const BoxConstraints(
+//             minWidth: 60,
+//             minHeight: 60,
+//             maxWidth: 80,
+//             maxHeight: 80,
+//           ),
+//           margin: EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.03),
+//           decoration: BoxDecoration(
+//             color: Colors.orange.withOpacity(0.1),
+//             shape: BoxShape.circle,
+//           ),
+//           child: Icon(
+//             Icons.flag,
+//             size: MediaQuery.of(context).size.width * 0.09,
+//             color: Colors.orange,
+//           ),
+//         ),
+        
+//         Text(
+//           'Establece tu peso objetivo',
+//           style: TextStyle(
+//             fontSize: MediaQuery.of(context).size.width * 0.07,
+//             fontWeight: FontWeight.bold,
+//             color: Colors.black87,
+//           ),
+//         ),
+//         const SizedBox(height: 8),
+//         Text(
+//           '¿Qué peso te gustaría alcanzar?',
+//           style: TextStyle(
+//             fontSize: MediaQuery.of(context).size.width * 0.04,
+//             color: Colors.grey.shade600,
+//           ),
+//         ),
+//         SizedBox(height: MediaQuery.of(context).size.height * 0.04),
+        
+//         // Health advice message
+//         if (_healthAdvice != null)
+//           Container(
+//             margin: EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.03),
+//             padding: const EdgeInsets.all(16),
+//             decoration: BoxDecoration(
+//               color: goalColor.withOpacity(0.1),
+//               borderRadius: BorderRadius.circular(12),
+//               border: Border.all(color: goalColor.withOpacity(0.3)),
+//             ),
+//             child: Row(
+//               children: [
+//                 Icon(goalIcon, color: goalColor, size: 28),
+//                 const SizedBox(width: 12),
+//                 Expanded(
+//                   child: Text(
+//                     goalMessage,
+//                     style: TextStyle(
+//                       color: goalColor,
+//                       fontWeight: FontWeight.w500,
+//                       fontSize: MediaQuery.of(context).size.width * 0.035,
+//                     ),
+//                   ),
+//                 ),
+//               ],
+//             ),
+//           ),
+        
+//         _buildFormField(
+//           controller: _weightGoalController,
+//           label: 'Peso objetivo (kg)',
+//           icon: Icons.flag,
+//           keyboardType: TextInputType.number,
+//           inputFormatters: [
+//             FilteringTextInputFormatter.allow(RegExp(r'^\d+\.?\d{0,2}')),
+//           ],
+//         ),
+        
+//         SizedBox(height: MediaQuery.of(context).size.height * 0.04),
+//         SizedBox(
+//           width: double.infinity,
+//           child: ElevatedButton(
+//             style: ElevatedButton.styleFrom(
+//               backgroundColor: const Color(0xFF066FFF),
+//               padding: const EdgeInsets.symmetric(vertical: 16),
+//               shape: RoundedRectangleBorder(
+//                 borderRadius: BorderRadius.circular(12),
+//               ),
+//             ),
+//             onPressed: _weightGoalController.text.trim().isEmpty ? null : () {
+//               // Validate target weight
+//               double? targetWeight = double.tryParse(_weightGoalController.text.trim());
+//               if (targetWeight == null || targetWeight < 20 || targetWeight > 300) {
+//                 _showErrorDialog('Por favor ingresa un peso objetivo válido entre 20 y 300 kg');
+//                 return;
+//               }
+              
+//               setState(() {
+//                 _currentStep = 3;
+//               });
+//             },
+//             child: const Text(
+//               'Continuar',
+//               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
+//             ),
+//           ),
+//         ),
+//       ],
+//     );
+//   }
 
-// Step 4: Activity & Goals (updated)
-Widget _buildActivityGoalsStep() {
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.stretch,
-    children: [
-      const SectionHeader(title: 'Activity & Goals'),
-      
-      Padding(
-        padding: const EdgeInsets.only(bottom: _spacingSmall),
-        child: DropdownButtonFormField<ActivityLevel>(
-          value: _selectedActivityLevel,
-          isExpanded: true,
-          decoration: const InputDecoration(
-            labelText: 'Activity Level',
-            prefixIcon: Icon(Icons.directions_run),
-          ),
-          items: ActivityLevel.values.map((activity) {
-            return DropdownMenuItem(
-              value: activity,
-              child: Text(activity.displayName),
-            );
-          }).toList(),
-          onChanged: (ActivityLevel? newValue) {
-            if (newValue != null) {
-              setState(() {
-                _selectedActivityLevel = newValue;
-              });
-            }
-          },
-        ),
-      ),
-      
-      Padding(
-        padding: const EdgeInsets.only(bottom: _spacingSmall),
-        child: DropdownButtonFormField<CaloricAdjustment>(
-          value: _selectedCaloricAdjustment,
-          isExpanded: true,
-          decoration: const InputDecoration(
-            labelText: 'Goal Type',
-            prefixIcon: Icon(Icons.trending_up),
-          ),
-          items: CaloricAdjustment.values
-              .where((adjustment) {
-                // Filter options based on weight goal
-                if (_weightGoalController.text.isEmpty) return true;
+//   // Step 4: Activity & Goals
+//   Widget _buildActivityGoalsStep() {
+//     return Column(
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+//         // Header with icon
+//         Container(
+//           width: MediaQuery.of(context).size.width * 0.18,
+//           height: MediaQuery.of(context).size.width * 0.18,
+//           constraints: const BoxConstraints(
+//             minWidth: 60,
+//             minHeight: 60,
+//             maxWidth: 80,
+//             maxHeight: 80,
+//           ),
+//           margin: EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.03),
+//           decoration: BoxDecoration(
+//             color: Colors.orange.withOpacity(0.1),
+//             shape: BoxShape.circle,
+//           ),
+//           child: Icon(
+//             Icons.directions_run,
+//             size: MediaQuery.of(context).size.width * 0.09,
+//             color: Colors.orange,
+//           ),
+//         ),
+        
+//         Text(
+//           '¿Cuál es tu objetivo?',
+//           style: TextStyle(
+//             fontSize: MediaQuery.of(context).size.width * 0.07,
+//             fontWeight: FontWeight.bold,
+//             color: Colors.black87,
+//           ),
+//         ),
+//         const SizedBox(height: 8),
+//         Text(
+//           'Te ayudaremos a encontrar la ingesta calórica adecuada para lograrlo',
+//           style: TextStyle(
+//             fontSize: MediaQuery.of(context).size.width * 0.04,
+//             color: Colors.grey.shade600,
+//           ),
+//         ),
+//         SizedBox(height: MediaQuery.of(context).size.height * 0.04),
+        
+//         // Activity Level
+//         const Text(
+//           'Nivel de actividad',
+//           style: TextStyle(
+//             fontSize: 18,
+//             fontWeight: FontWeight.w600,
+//             color: Colors.black87,
+//           ),
+//         ),
+//         const SizedBox(height: 16),
+        
+//         ...ActivityLevel.values.map((activity) {
+//           return _buildOptionCard(
+//             title: activity.displayName.split(' (')[0],
+//             subtitle: activity.displayName.contains('(') 
+//                 ? activity.displayName.split('(')[1].replaceAll(')', '')
+//                 : activity.displayName,
+//             icon: Icons.directions_run,
+//             isSelected: _selectedActivityLevel == activity,
+//             onTap: () => setState(() => _selectedActivityLevel = activity),
+//           );
+//         }).toList(),
+        
+//         const SizedBox(height: 24),
+        
+//         // Goal Type
+//         const Text(
+//           'Tipo de objetivo',
+//           style: TextStyle(
+//             fontSize: 18,
+//             fontWeight: FontWeight.w600,
+//             color: Colors.black87,
+//           ),
+//         ),
+//         const SizedBox(height: 16),
+        
+//         ...CaloricAdjustment.values
+//             .where((adjustment) {
+//               // Filter options based on weight goal
+//               if (_weightGoalController.text.trim().isEmpty) return true;
+              
+//               try {
+//                 double currentWeight = double.parse(_weightController.text.trim());
+//                 double targetWeight = double.parse(_weightGoalController.text.trim());
                 
-                try {
-                  double currentWeight = double.parse(_weightController.text);
-                  double targetWeight = double.parse(_weightGoalController.text);
-                  
-                  if (targetWeight > currentWeight) {
-                    return adjustment == CaloricAdjustment.MAINTAIN ||
-                           adjustment == CaloricAdjustment.GAIN;
-                  } else if (targetWeight < currentWeight) {
-                    return adjustment == CaloricAdjustment.MAINTAIN ||
-                           adjustment == CaloricAdjustment.LOSS;
-                  }
-                } catch (e) {
-                  // Show all options if parsing fails
-                }
-                return true;
-              })
-              .map((adjustment) {
-                return DropdownMenuItem(
-                  value: adjustment,
-                  child: Text(adjustment.displayName),
-                );
-              })
-              .toList(),
-          onChanged: (CaloricAdjustment? newValue) {
-            if (newValue != null) {
-              setState(() {
-                _selectedCaloricAdjustment = newValue;
-              });
-            }
-          },
-        ),
-      ),
-      
-      const SizedBox(height: _spacingLarge),
-      ElevatedButton(
-        style: ElevatedButton.styleFrom(
-          padding: const EdgeInsets.symmetric(vertical: _spacingMedium),
-          backgroundColor: Colors.green,
-        ),
-        onPressed: _signup,
-        child: const Text('Create Account', 
-            style: TextStyle(fontSize: 16, color: Colors.white)),
-      ),
-    ],
-  );
-}
-}
+//                 if (targetWeight > currentWeight) {
+//                   return adjustment == CaloricAdjustment.MAINTAIN ||
+//                          adjustment == CaloricAdjustment.GAIN;
+//                 } else if (targetWeight < currentWeight) {
+//                   return adjustment == CaloricAdjustment.MAINTAIN ||
+//                          adjustment == CaloricAdjustment.LOSS;
+//                 }
+//               } catch (e) {
+//                 // Show all options if parsing fails
+//               }
+//               return true;
+//             })
+//             .map((adjustment) {
+//               IconData icon;
+//               switch (adjustment) {
+//                 case CaloricAdjustment.LOSS:
+//                   icon = Icons.trending_down;
+//                   break;
+//                 case CaloricAdjustment.GAIN:
+//                   icon = Icons.trending_up;
+//                   break;
+//                 default:
+//                   icon = Icons.balance;
+//               }
+              
+//               return _buildOptionCard(
+//                 title: adjustment.displayName,
+//                 subtitle: _getGoalDescription(adjustment),
+//                 icon: icon,
+//                 isSelected: _selectedCaloricAdjustment == adjustment,
+//                 onTap: () => setState(() => _selectedCaloricAdjustment = adjustment),
+//               );
+//             }).toList(),
+        
+//         SizedBox(height: MediaQuery.of(context).size.height * 0.04),
+//         SizedBox(
+//           width: double.infinity,
+//           child: ElevatedButton(
+//             style: ElevatedButton.styleFrom(
+//               backgroundColor: Colors.green,
+//               padding: const EdgeInsets.symmetric(vertical: 16),
+//               shape: RoundedRectangleBorder(
+//                 borderRadius: BorderRadius.circular(12),
+//               ),
+//             ),
+//             onPressed: _signup,
+//             child: const Text(
+//               'Crear cuenta',
+//               style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white),
+//             ),
+//           ),
+//         ),
+//       ],
+//     );
+//   }
 
-// Helper widget for section headers
-class SectionHeader extends StatelessWidget {
-  final String title;
-  
-  const SectionHeader({super.key, required this.title});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Colors.blue,
-          ),
-        ),
-        const Divider(),
-        const SizedBox(height: 16),
-      ],
-    );
-  }
-}
-
-// Step indicator widget
-class StepIndicator extends StatelessWidget {
-  final int currentStep;
-  
-  const StepIndicator({super.key, required this.currentStep});
-
-  @override
-  Widget build(BuildContext context) {
-    final List<String> stepTitles = [
-      'Basic Information',
-      'Physical Measurements',
-      'Target Weight',
-      'Activity & Goals'
-    ];
-
-    return Column(
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: List.generate(
-            4, // Update to 4 steps
-            (index) => Expanded(
-              child: Row(
-                children: [
-                  // Line before circle (except for first item)
-                  if (index > 0)
-                    Expanded(
-                      child: Container(
-                        height: 2,
-                        color: index <= currentStep
-                            ? Colors.blue
-                            : Colors.grey.shade300,
-                      ),
-                    ),
-                  
-                  // Circle with step number
-                  Container(
-                    width: 30,
-                    height: 30,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: index == currentStep
-                          ? Colors.blue
-                          : (index < currentStep ? Colors.green : Colors.grey.shade300),
-                    ),
-                    child: Center(
-                      child: Text(
-                        '${index + 1}',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                  
-                  // Line after circle (except for last item)
-                  if (index < 3) // Update to check for the last of 4 items
-                    Expanded(
-                      child: Container(
-                        height: 2,
-                        color: index < currentStep
-                            ? Colors.blue
-                            : Colors.grey.shade300,
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 8),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: List.generate(
-            4, // Update to 4 steps
-            (index) => SizedBox(
-              width: 70, // Reduce width to fit 4 items
-              child: Text(
-                stepTitles[index],
-                textAlign: index == 0 
-                    ? TextAlign.left 
-                    : (index == 3 ? TextAlign.right : TextAlign.center),
-                style: TextStyle(
-                  color: index == currentStep 
-                      ? Colors.blue 
-                      : (index < currentStep ? Colors.green : Colors.grey),
-                  fontWeight: index == currentStep ? FontWeight.bold : FontWeight.normal,
-                  fontSize: 10, // Reduce font size to fit 4 items
-                ),
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
+//   String _getGoalDescription(CaloricAdjustment adjustment) {
+//     switch (adjustment) {
+//       case CaloricAdjustment.LOSS:
+//         return 'Optimiza la pérdida de peso y preserva la masa muscular';
+//       case CaloricAdjustment.GAIN:
+//         return 'Aumenta tu peso y fortalécete';
+//       case CaloricAdjustment.MAINTAIN:
+//         return 'Mantén tu peso estable y busca la recomposición corporal';
+//     }
+//   }
+// }

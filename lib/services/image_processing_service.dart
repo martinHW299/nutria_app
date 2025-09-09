@@ -6,7 +6,9 @@ import '../utils/jwt_storage.dart';
 class ImageProcessingService {
   static Future<List<FoodTrace>> getFoodTraces({DateTime? date}) async {
     try {
-      final formattedDate = DateFormat('yyyy-MM-dd').format(date ?? DateTime.now());
+      final formattedDate = DateFormat(
+        'yyyy-MM-dd',
+      ).format(date ?? DateTime.now());
       print('Formatted date: $formattedDate');
       final token = await JwtStorage.getToken();
       if (token == null) {
@@ -24,7 +26,9 @@ class ImageProcessingService {
         if (responseData['status'] == 200 && responseData['data'] != null) {
           final List<dynamic> foodTracesList = responseData['data'];
           print('foodTracesList: $foodTracesList');
-          return foodTracesList.map((item) => FoodTrace.fromJson(item)).toList();
+          return foodTracesList
+              .map((item) => FoodTrace.fromJson(item))
+              .toList();
         }
       }
       return [];
@@ -34,37 +38,55 @@ class ImageProcessingService {
     }
   }
 
-  static Future<FoodData?> processImage(String base64Image) async {
+  static Future<FoodData?> processImage(
+    String base64Image, {
+    double? userServingSize,
+  }) async {
     final token = await JwtStorage.getToken();
-    
+
     if (token == null) {
       throw Exception('No authentication token found');
     }
 
-    print('image: $base64Image');
+    print('Processing image with serving size: $userServingSize');
+
     try {
+      // Prepare request body based on whether serving size is provided
+      Map<String, dynamic> requestBody = {
+        'image': base64Image,
+        'useMockData': false,
+        'temperature': 0.1,
+      };
+
+      // Add userServingSize only if provided
+      if (userServingSize != null && userServingSize > 0) {
+        requestBody['userServingSize'] = userServingSize;
+      }
+
+      print('Request body: $requestBody');
+
       final response = await ApiClient.post(
-        'food-trace/process-image?id=1&tmp=0.2',
-        // 'food-trace/process-image?id=1&tmp=0.5
-        {'image': base64Image},
+        'food-trace/analyze-food',
+        requestBody,
         headers: {
           'Authorization': 'Bearer $token',
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
       );
-      print('response: $response');
-      
+
+      print('Analyze food response: $response');
+
       if (response.statusCode == 200) {
         final responseData = response.data;
-        print('responseData: $responseData');
-        
+        print('Response data: $responseData');
+
         if (responseData['status'] == 200 && responseData['data'] != null) {
           final foodData = FoodData.fromJson(responseData['data']);
           foodData.base64Image = base64Image;
           return foodData;
         }
       }
-      
+
       return null;
     } catch (e) {
       print('Error processing image: $e');
@@ -74,27 +96,25 @@ class ImageProcessingService {
 
   static Future<bool> saveFoodData(FoodData foodData, {DateTime? date}) async {
     try {
-
-      final formattedDate = DateFormat('yyyy-MM-dd').format(date ?? DateTime.now());
+      final formattedDate = DateFormat(
+        'yyyy-MM-dd',
+      ).format(date ?? DateTime.now());
       print('Formatted date: $formattedDate');
 
       final token = await JwtStorage.getToken();
       if (token == null) {
         throw Exception('No authentication token found');
       }
-      
+
       final response = await ApiClient.post(
         'food-trace/save?date=$formattedDate',
-        {
-          'macrosData': foodData.toJson(),
-          'image': foodData.base64Image,
-        },
+        {'macrosData': foodData.toJson(), 'image': foodData.base64Image},
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
       );
-      print('response: $response');
+      print('Save food response: $response');
       return response.statusCode == 200;
     } catch (e) {
       print('Error saving food data: $e');

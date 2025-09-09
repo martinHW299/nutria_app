@@ -4,14 +4,14 @@ import '../../models/food_trace.dart';
 
 class FoodDetailCard extends StatelessWidget {
   final MacrosData macrosData;
-  
+
   const FoodDetailCard({super.key, required this.macrosData});
-  
+
   @override
   Widget build(BuildContext context) {
     // Calculate total macros in grams
     final totalGrams = macrosData.proteins + macrosData.carbs + macrosData.fats;
-    
+
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
       elevation: 4,
@@ -32,14 +32,17 @@ class FoodDetailCard extends StatelessWidget {
                       Text(
                         macrosData.description,
                         style: const TextStyle(
-                          fontSize: 18, 
-                          fontWeight: FontWeight.bold
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
                       const SizedBox(height: 8),
                       Row(
                         children: [
-                          const Icon(Icons.local_fire_department, color: Colors.orange),
+                          const Icon(
+                            Icons.local_fire_department,
+                            color: Colors.orange,
+                          ),
                           const SizedBox(width: 4),
                           Text(
                             '${macrosData.calories.toStringAsFixed(0)} kcal',
@@ -51,11 +54,13 @@ class FoodDetailCard extends StatelessWidget {
                         ],
                       ),
                       const SizedBox(height: 4),
-                      Text('Serving size: ${macrosData.servingSize.toStringAsFixed(0)}g'),
+                      Text(
+                        'Tamaño de porción: ${macrosData.servingSize.toStringAsFixed(0)}g',
+                      ),
                     ],
                   ),
                 ),
-                
+
                 // Circular macro distribution indicator
                 SizedBox(
                   width: 80,
@@ -84,33 +89,33 @@ class FoodDetailCard extends StatelessWidget {
                 ),
               ],
             ),
-            
+
             const Divider(height: 24),
-            
+
             // Macros breakdown
             MacrosIndicator(
-              label: 'Proteins',
+              label: 'Proteínas',
               value: macrosData.proteins,
               total: totalGrams,
               color: Colors.blue,
             ),
             const SizedBox(height: 8),
             MacrosIndicator(
-              label: 'Carbs',
+              label: 'Carbohidratos',
               value: macrosData.carbs,
               total: totalGrams,
               color: Colors.orange,
             ),
             const SizedBox(height: 8),
             MacrosIndicator(
-              label: 'Fats',
+              label: 'Grasas',
               value: macrosData.fats,
               total: totalGrams,
               color: Colors.green,
             ),
-            
+
             const SizedBox(height: 16),
-            
+
             // Time info
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -118,9 +123,9 @@ class FoodDetailCard extends StatelessWidget {
                 const Icon(Icons.access_time, size: 16, color: Colors.grey),
                 const SizedBox(width: 4),
                 Text(
-                  DateFormat('MMM d, h:mm a').format(
-                    DateTime.parse(macrosData.createdAt)
-                  ),
+                  DateFormat(
+                    'd MMM, h:mm a',
+                  ).format(DateTime.parse(macrosData.createdAt)),
                   style: TextStyle(color: Colors.grey[600], fontSize: 12),
                 ),
               ],
@@ -137,11 +142,11 @@ class MacrosIndicator extends StatelessWidget {
   final double value;
   final double total;
   final Color color;
-  
+
   const MacrosIndicator({
-    super.key, 
-    required this.label, 
-    required this.value, 
+    super.key,
+    required this.label,
+    required this.value,
     required this.total,
     required this.color,
   });
@@ -150,7 +155,7 @@ class MacrosIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     // Calculate percentage of total calories
     final percentage = total > 0 ? (value / total) : 0.0;
-    
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -192,40 +197,41 @@ class MacrosPieChart extends CustomPainter {
   final double proteins;
   final double carbs;
   final double fats;
-  
+
   MacrosPieChart({
     required this.proteins,
     required this.carbs,
     required this.fats,
   });
-  
+
   @override
   void paint(Canvas canvas, Size size) {
     final total = proteins + carbs + fats;
     if (total <= 0) return;
-    
+
     final center = Offset(size.width / 2, size.height / 2);
     final radius = size.width / 2;
-    
+
     // Define colors for each macro
     const proteinColor = Colors.blue;
     const carbColor = Colors.orange;
     const fatColor = Colors.green;
-    
+
     // Calculate angles
     final proteinAngle = 2 * 3.14159 * (proteins / total);
     final carbAngle = 2 * 3.14159 * (carbs / total);
     final fatAngle = 2 * 3.14159 * (fats / total);
-    
+
     var startAngle = -3.14159 / 2; // Start from the top
-    
+
     // Draw proteins section
     if (proteins > 0) {
-      final paint = Paint()
-        ..color = proteinColor
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 10;
-      
+      final paint =
+          Paint()
+            ..color = proteinColor
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 10;
+
       canvas.drawArc(
         Rect.fromCircle(center: center, radius: radius - 5),
         startAngle,
@@ -233,17 +239,18 @@ class MacrosPieChart extends CustomPainter {
         false,
         paint,
       );
-      
+
       startAngle += proteinAngle;
     }
-    
+
     // Draw carbs section
     if (carbs > 0) {
-      final paint = Paint()
-        ..color = carbColor
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 10;
-      
+      final paint =
+          Paint()
+            ..color = carbColor
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 10;
+
       canvas.drawArc(
         Rect.fromCircle(center: center, radius: radius - 5),
         startAngle,
@@ -251,17 +258,18 @@ class MacrosPieChart extends CustomPainter {
         false,
         paint,
       );
-      
+
       startAngle += carbAngle;
     }
-    
+
     // Draw fats section
     if (fats > 0) {
-      final paint = Paint()
-        ..color = fatColor
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 10;
-      
+      final paint =
+          Paint()
+            ..color = fatColor
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 10;
+
       canvas.drawArc(
         Rect.fromCircle(center: center, radius: radius - 5),
         startAngle,
@@ -271,7 +279,7 @@ class MacrosPieChart extends CustomPainter {
       );
     }
   }
-  
+
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

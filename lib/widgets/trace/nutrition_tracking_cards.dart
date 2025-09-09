@@ -27,20 +27,8 @@ class _NutritionTrackingCardsState extends State<NutritionTrackingCards> {
     super.dispose();
   }
 
-  // bool get _hasData {
-  //   // Check if there's any nutrition data recorded
-  //   return widget.dailyIntake.totalCalories > 0 || 
-  //          widget.dailyIntake.totalProteins > 0 || 
-  //          widget.dailyIntake.totalCarbs > 0 || 
-  //          widget.dailyIntake.totalFats > 0;
-  // }
-
   @override
   Widget build(BuildContext context) {
-    // if (!_hasData) {
-    //   return _buildNoDataCard();
-    // }
-
     return Column(
       children: [
         SizedBox(
@@ -52,10 +40,7 @@ class _NutritionTrackingCardsState extends State<NutritionTrackingCards> {
                 _currentPage = index;
               });
             },
-            children: [
-              _buildCaloriesCard(),
-              _buildMacrosCard(),
-            ],
+            children: [_buildCaloriesCard(), _buildMacrosCard()],
           ),
         ),
         const SizedBox(height: 8),
@@ -71,42 +56,23 @@ class _NutritionTrackingCardsState extends State<NutritionTrackingCards> {
     );
   }
 
-  // Widget _buildNoDataCard() {
-  //   return SizedBox(
-  //     height: 180,
-  //     child: Card(
-  //       elevation: 4,
-  //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-  //       child: const Center(
-  //         child: Column(
-  //           mainAxisAlignment: MainAxisAlignment.center,
-  //           children: [
-  //             Icon(Icons.no_meals, size: 48, color: Colors.grey),
-  //             SizedBox(height: 16),
-  //             Text(
-  //               'No nutrition data available',
-  //               style: TextStyle(fontSize: 16, fontStyle: FontStyle.italic, color: Colors.grey),
-  //             ),
-  //           ],
-  //         ),
-  //       ),
-  //     ),
-  //   );
-  // }
-
   Widget _buildIndicator(int index) {
     return Container(
       width: 8,
       height: 8,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: _currentPage == index ? Theme.of(context).primaryColor : Colors.grey,
+        color:
+            _currentPage == index
+                ? Theme.of(context).primaryColor
+                : Colors.grey,
       ),
     );
   }
 
   Widget _buildCaloriesCard() {
-    final double caloriePercentage = widget.dailyIntake.totalCalories / widget.nutritionGoal.calories;
+    final double caloriePercentage =
+        widget.dailyIntake.totalCalories / widget.nutritionGoal.calories;
     final double clampedPercentage = caloriePercentage.clamp(0.0, 1.0);
 
     return Card(
@@ -118,7 +84,7 @@ class _NutritionTrackingCardsState extends State<NutritionTrackingCards> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              'Calories',
+              'Calorías',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 12),
@@ -136,7 +102,10 @@ class _NutritionTrackingCardsState extends State<NutritionTrackingCards> {
                       widthFactor: clampedPercentage,
                       child: Container(
                         decoration: BoxDecoration(
-                          color: caloriePercentage > 1.0 ? Colors.red : Theme.of(context).primaryColor,
+                          color:
+                              caloriePercentage > 1.0
+                                  ? Colors.red
+                                  : Theme.of(context).primaryColor,
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
@@ -157,19 +126,16 @@ class _NutritionTrackingCardsState extends State<NutritionTrackingCards> {
                   ),
                 ),
                 Text(
-                  'Goal: ${widget.nutritionGoal.calories.toStringAsFixed(0)} kcal',
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
-                  ),
+                  'Meta: ${widget.nutritionGoal.calories.toStringAsFixed(0)} kcal',
+                  style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                 ),
               ],
             ),
             const SizedBox(height: 8),
             Text(
               caloriePercentage > 1.0
-                  ? '+${(widget.dailyIntake.totalCalories - widget.nutritionGoal.calories).toStringAsFixed(0)} kcal over goal'
-                  : '${(widget.nutritionGoal.calories - widget.dailyIntake.totalCalories).toStringAsFixed(0)} kcal remaining',
+                  ? '+${(widget.dailyIntake.totalCalories - widget.nutritionGoal.calories).toStringAsFixed(0)} kcal por encima de la meta'
+                  : '${(widget.nutritionGoal.calories - widget.dailyIntake.totalCalories).toStringAsFixed(0)} kcal restantes',
               style: TextStyle(
                 fontSize: 13,
                 color: caloriePercentage > 1.0 ? Colors.red : Colors.green,
@@ -192,21 +158,21 @@ class _NutritionTrackingCardsState extends State<NutritionTrackingCards> {
           children: [
             const SizedBox(height: 12),
             _buildMacroRow(
-              label: 'Protein',
+              label: 'Proteínas',
               current: widget.dailyIntake.totalProteins,
               goal: widget.nutritionGoal.proteins,
               color: Colors.blue,
             ),
             const SizedBox(height: 8),
             _buildMacroRow(
-              label: 'Carbs',
+              label: 'Carbohidratos',
               current: widget.dailyIntake.totalCarbs,
               goal: widget.nutritionGoal.carbs,
               color: Colors.orange,
             ),
             const SizedBox(height: 8),
             _buildMacroRow(
-              label: 'Fats',
+              label: 'Grasas',
               current: widget.dailyIntake.totalFats,
               goal: widget.nutritionGoal.fats,
               color: Colors.green,
@@ -232,10 +198,7 @@ class _NutritionTrackingCardsState extends State<NutritionTrackingCards> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              label,
-              style: const TextStyle(fontWeight: FontWeight.w500),
-            ),
+            Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
             Text(
               '${current.toStringAsFixed(1)}g / ${goal.toStringAsFixed(1)}g',
               style: TextStyle(fontSize: 12, color: Colors.grey[600]),

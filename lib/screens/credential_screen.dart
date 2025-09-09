@@ -1,50 +1,72 @@
-// lib/screens/login_screen.dart
+// lib/screens/credentials_screen.dart
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class CredentialsScreen extends StatefulWidget {
+  const CredentialsScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<CredentialsScreen> createState() => _CredentialsScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
+class _CredentialsScreenState extends State<CredentialsScreen> {
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
   bool _isLoading = false;
   bool _obscurePassword = true;
+  Map<String, dynamic>? _userData;
 
-  Future<void> login() async {
-    if (emailController.text.isEmpty || passwordController.text.isEmpty) {
-      showDialog(
-        context: context,
-        builder:
-            (_) => AlertDialog(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              title: const Text('Información faltante'),
-              content: const Text(
-                'Por favor ingresa tanto el correo electrónico como la contraseña',
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: const Text('Aceptar'),
-                ),
-              ],
-            ),
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Get the user data passed from onboarding
+    final args =
+        ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+    if (args != null) {
+      _userData = args;
+    }
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _signup() async {
+    if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
+      _showErrorDialog(
+        'Por favor ingresa tanto el correo electrónico como la contraseña',
       );
       return;
     }
 
+    if (!RegExp(
+      r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
+    ).hasMatch(_emailController.text.trim())) {
+      _showErrorDialog('Por favor ingresa un correo electrónico válido');
+      return;
+    }
+
+    if (_passwordController.text.length < 6) {
+      _showErrorDialog('La contraseña debe tener al menos 6 caracteres');
+      return;
+    }
+
     setState(() => _isLoading = true);
+
     try {
-      final result = await AuthService.login(
-        emailController.text.trim(),
-        passwordController.text,
-      );
+      // Combine onboarding data with credentials
+      final completeUserData = {
+        ..._userData!,
+        'email': _emailController.text.trim(),
+        'password': _passwordController.text,
+      };
+
+      print('Complete userData: $completeUserData');
+
+      final result = await AuthService.signup(completeUserData);
 
       if (result == true) {
         if (mounted) {
@@ -52,54 +74,42 @@ class _LoginScreenState extends State<LoginScreen> {
         }
       } else {
         if (mounted) {
-          String errorMessage = 'Error al iniciar sesión';
+          String errorMessage = 'Error al crear la cuenta';
           if (result is String) {
             errorMessage = result;
           }
-          showDialog(
-            context: context,
-            builder:
-                (_) => AlertDialog(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  title: const Text('Error de inicio de sesión'),
-                  content: Text(errorMessage),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text('Aceptar'),
-                    ),
-                  ],
-                ),
-          );
+          _showErrorDialog(errorMessage);
         }
       }
     } catch (e) {
       if (mounted) {
-        showDialog(
-          context: context,
-          builder:
-              (_) => AlertDialog(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                title: const Text('Error'),
-                content: Text('Error de conexión: ${e.toString()}'),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context),
-                    child: const Text('Aceptar'),
-                  ),
-                ],
-              ),
-        );
+        _showErrorDialog('Error de conexión: ${e.toString()}');
       }
     } finally {
       if (mounted) {
         setState(() => _isLoading = false);
       }
     }
+  }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder:
+          (_) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            title: const Text('Error'),
+            content: Text(message),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('OK'),
+              ),
+            ],
+          ),
+    );
   }
 
   @override
@@ -114,7 +124,7 @@ class _LoginScreenState extends State<LoginScreen> {
           onPressed: () => Navigator.pop(context),
         ),
         title: const Text(
-          'Bienvenido de vuelta',
+          'Crear cuenta',
           style: TextStyle(
             color: Color(0xFF066FFF),
             fontWeight: FontWeight.w600,
@@ -151,18 +161,18 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     margin: const EdgeInsets.only(bottom: 20),
                     decoration: BoxDecoration(
-                      color: const Color(0xFF066FFF).withOpacity(0.1),
+                      color: Colors.green.withOpacity(0.1),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
-                      Icons.person,
+                      Icons.email,
                       size: MediaQuery.of(context).size.width * 0.08,
-                      color: const Color(0xFF066FFF),
+                      color: Colors.green,
                     ),
                   ),
 
                   Text(
-                    'Inicia sesión en tu cuenta',
+                    'Último paso',
                     style: TextStyle(
                       fontSize: MediaQuery.of(context).size.width * 0.07,
                       fontWeight: FontWeight.bold,
@@ -171,14 +181,14 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Ingresa tus credenciales para continuar',
+                    'Crea tu cuenta para empezar a usar Nutria',
                     style: TextStyle(
                       fontSize: MediaQuery.of(context).size.width * 0.04,
                       color: Colors.grey.shade600,
                     ),
                   ),
 
-                  SizedBox(height: MediaQuery.of(context).size.height * 0.03),
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.05),
 
                   // Email field
                   Container(
@@ -188,7 +198,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       border: Border.all(color: Colors.grey.shade200),
                     ),
                     child: TextField(
-                      controller: emailController,
+                      controller: _emailController,
                       decoration: const InputDecoration(
                         labelText: 'Correo electrónico',
                         labelStyle: TextStyle(color: Colors.grey),
@@ -213,7 +223,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       border: Border.all(color: Colors.grey.shade200),
                     ),
                     child: TextField(
-                      controller: passwordController,
+                      controller: _passwordController,
                       decoration: InputDecoration(
                         labelText: 'Contraseña',
                         labelStyle: const TextStyle(color: Colors.grey),
@@ -244,20 +254,28 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ),
 
-                  SizedBox(height: MediaQuery.of(context).size.height * 0.04),
+                  const SizedBox(height: 12),
 
-                  // Login button
+                  // Password requirements
+                  Text(
+                    'La contraseña debe tener al menos 6 caracteres',
+                    style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                  ),
+
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.05),
+
+                  // Create account button
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF066FFF),
+                        backgroundColor: Colors.green,
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      onPressed: _isLoading ? null : login,
+                      onPressed: _isLoading ? null : _signup,
                       child:
                           _isLoading
                               ? const SizedBox(
@@ -269,7 +287,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                               )
                               : const Text(
-                                'Iniciar sesión',
+                                'Crear cuenta',
                                 style: TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
@@ -281,26 +299,36 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   const Spacer(),
 
-                  // Sign up link
-                  Center(
-                    child: TextButton(
-                      onPressed:
-                          () => Navigator.pushNamed(context, '/onboarding'),
-                      child: const Text(
-                        '¿No tienes una cuenta? Regístrate',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Color(0xFF066FFF),
-                          fontWeight: FontWeight.w500,
+                  // Privacy notice
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.blue.shade50,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.blue.shade200),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.privacy_tip,
+                          color: Colors.blue.shade600,
+                          size: 20,
                         ),
-                      ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            'Al crear tu cuenta, aceptas nuestros términos de servicio y política de privacidad.',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.blue.shade700,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
 
-                  SizedBox(
-                    height:
-                        MediaQuery.of(context).viewInsets.bottom > 0 ? 10 : 20,
-                  ),
+                  const SizedBox(height: 20),
                 ],
               ),
             ),
