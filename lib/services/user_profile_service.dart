@@ -27,7 +27,7 @@ class UserProfileService {
 
       return null;
     } catch (e) {
-      print('Error fetching user profile: $e');
+      // print('Error fetching user profile: $e');
       return null;
     }
   }
@@ -53,7 +53,7 @@ class UserProfileService {
 
       return response.statusCode == 200;
     } catch (e) {
-      print('Error updating user profile: $e');
+      // print('Error updating user profile: $e');
       return false;
     }
   }
@@ -71,14 +71,15 @@ class UserProfileService {
       if (weight != null) updates['weight'] = weight;
       if (weightGoal != null) updates['weightGoal'] = weightGoal;
       if (activityLevel != null) updates['activityLevel'] = activityLevel;
-      if (caloricAdjustment != null)
+      if (caloricAdjustment != null) {
         updates['caloricAdjustment'] = caloricAdjustment;
+      }
 
       if (updates.isEmpty) return false;
 
       return await updateUserProfile(updates);
     } catch (e) {
-      print('Error updating user metrics: $e');
+      // print('Error updating user metrics: $e');
       return false;
     }
   }

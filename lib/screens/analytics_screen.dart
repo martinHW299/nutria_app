@@ -92,7 +92,7 @@ class _AnalyticsScreenState extends State<AnalyticsScreen>
         _isLoading = false;
       });
     } catch (e) {
-      print('Error loading analytics data: $e');
+      // print('Error loading analytics data: $e');
       setState(() {
         _isLoading = false;
       });

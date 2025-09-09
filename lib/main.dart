@@ -4,7 +4,7 @@ import 'package:nutria/screens/credential_screen.dart';
 import 'package:nutria/screens/home_screen.dart';
 import 'package:nutria/screens/onboarding_screen.dart';
 import 'package:nutria/screens/profile_screen.dart';
-import 'package:nutria/screens/signup_screen.dart';
+// import 'package:nutria/screens/signup_screen.dart';
 import 'package:nutria/screens/welcome_screen.dart';
 import 'screens/login_screen.dart';
 import 'services/auth_service.dart';

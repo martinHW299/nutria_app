@@ -541,7 +541,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       const SizedBox(height: 4),
                       Text(
                         _selectedDate != null
-                            ? '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year} (${_calculatedAge} años)'
+                            ? '${_selectedDate!.day}/${_selectedDate!.month}/${_selectedDate!.year} ($_calculatedAge años)'
                             : 'Selecciona tu fecha de nacimiento',
                         style: TextStyle(
                           color:
@@ -963,7 +963,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             isSelected: _selectedActivityLevel == activity,
             onTap: () => setState(() => _selectedActivityLevel = activity),
           );
-        }).toList(),
+        }),
 
         const SizedBox(height: 24),
 
@@ -996,7 +996,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             onTap:
                 () => setState(() => _selectedCaloricAdjustment = adjustment),
           );
-        }).toList(),
+        }),
 
         SizedBox(height: MediaQuery.of(context).size.height * 0.04),
         SizedBox(

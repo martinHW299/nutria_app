@@ -62,31 +62,31 @@ class FoodDetailCard extends StatelessWidget {
                 ),
 
                 // Circular macro distribution indicator
-                SizedBox(
-                  width: 80,
-                  height: 80,
-                  child: Stack(
-                    children: [
-                      Center(
-                        child: Text(
-                          '${totalGrams.toStringAsFixed(0)} g',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ),
-                      CustomPaint(
-                        size: const Size(80, 80),
-                        painter: MacrosPieChart(
-                          proteins: macrosData.proteins,
-                          carbs: macrosData.carbs,
-                          fats: macrosData.fats,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                // SizedBox(
+                //   width: 80,
+                //   height: 80,
+                //   child: Stack(
+                //     children: [
+                //       Center(
+                //         child: Text(
+                //           '${totalGrams.toStringAsFixed(0)} g',
+                //           style: const TextStyle(
+                //             fontWeight: FontWeight.bold,
+                //             fontSize: 16,
+                //           ),
+                //         ),
+                //       ),
+                //       CustomPaint(
+                //         size: const Size(80, 80),
+                //         painter: MacrosPieChart(
+                //           proteins: macrosData.proteins,
+                //           carbs: macrosData.carbs,
+                //           fats: macrosData.fats,
+                //         ),
+                //       ),
+                //     ],
+                //   ),
+                // ),
               ],
             ),
 

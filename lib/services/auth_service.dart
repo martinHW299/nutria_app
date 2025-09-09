@@ -22,7 +22,7 @@ class AuthService {
       }
       return res.data['message'] ?? 'Login failed';
     } catch (e) {
-      print('Login error: $e');
+      // print('Login error: $e');
       return false;
     }
   }
@@ -46,7 +46,7 @@ class AuthService {
 
       for (String field in requiredFields) {
         if (!userData.containsKey(field) || userData[field] == null) {
-          print('Missing required field: $field');
+          // print('Missing required field: $field');
           return 'Faltan datos requeridos: $field';
         }
       }
@@ -78,7 +78,7 @@ class AuthService {
         'caloricAdjustment': userData['caloricAdjustment'].toString(),
       };
 
-      print('Sending signup data: $processedData');
+      // print('Sending signup data: $processedData');
 
       final res = await ApiClient.post(
         'auth/signup',
@@ -86,7 +86,7 @@ class AuthService {
         headers: {'Content-Type': 'application/json'},
       );
 
-      print('Signup response: ${res.statusCode} - ${res.data}');
+      // print('Signup response: ${res.statusCode} - ${res.data}');
 
       if (res.statusCode == 200) {
         final responseData = res.data;
@@ -94,22 +94,22 @@ class AuthService {
         // Check if we have data in the response
         if (responseData['status'] == 200 && responseData['data'] != null) {
           // Auto-login after successful signup
-          print('Signup successful, attempting auto-login...');
+          // print('Signup successful, attempting auto-login...');
           final loginResult = await login(
             processedData['email'],
             processedData['password'],
           );
           return loginResult;
         } else {
-          print('Signup failed - invalid response structure');
+          // print('Signup failed - invalid response structure');
           return responseData['message'] ?? 'Error en el registro';
         }
       } else {
-        print('Signup failed with status: ${res.statusCode}');
+        // print('Signup failed with status: ${res.statusCode}');
         return res.data['message'] ?? 'Error en el registro';
       }
     } catch (e) {
-      print('Signup error: $e');
+      // print('Signup error: $e');
       return 'Error de conexión durante el registro';
     }
   }
@@ -119,30 +119,30 @@ class AuthService {
     double weight,
   ) async {
     try {
-      print('Getting health advice for height: $height, weight: $weight');
+      // print('Getting health advice for height: $height, weight: $weight');
       final response = await ApiClient.get(
         'auth/advisor',
         {'height': height, 'weight': weight},
         headers: {'Content-Type': 'application/json'},
       );
 
-      print(
-        'Health advice response: ${response.statusCode} - ${response.data}',
-      );
+      // print(
+      //   'Health advice response: ${response.statusCode} - ${response.data}',
+      // );
 
       if (response.statusCode == 200) {
         // Access the data field directly since it's already a Map
         if (response.data is Map && response.data.containsKey('data')) {
-          print('Health advice data: ${response.data['data']}');
+          // print('Health advice data: ${response.data['data']}');
           return response.data['data'];
         }
         return null;
       } else {
-        print('Health advice failed with status: ${response.statusCode}');
+        // print('Health advice failed with status: ${response.statusCode}');
         return null;
       }
     } catch (e) {
-      print('Health advice error: $e');
+      // print('Health advice error: $e');
       return null;
     }
   }
@@ -159,7 +159,7 @@ class AuthService {
 
       return res.statusCode == 200;
     } catch (e) {
-      print('Token validation error: $e');
+      // print('Token validation error: $e');
       return false;
     }
   }

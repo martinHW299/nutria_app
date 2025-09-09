@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
@@ -9,8 +8,15 @@ import 'package:nutria/utils/event_bus.dart';
 
 class FoodScannerButton extends StatefulWidget {
   final DateTime? date;
+  final Function(String message) onShowLoading;
+  final Function() onHideLoading;
 
-  const FoodScannerButton({super.key, required this.date});
+  const FoodScannerButton({
+    super.key,
+    required this.date,
+    required this.onShowLoading,
+    required this.onHideLoading,
+  });
 
   @override
   State<FoodScannerButton> createState() => _FoodScannerButtonState();
@@ -19,6 +25,7 @@ class FoodScannerButton extends StatefulWidget {
 class _FoodScannerButtonState extends State<FoodScannerButton> {
   ScaffoldMessengerState? _scaffoldMessenger;
   NavigatorState? _navigator;
+  bool _isLoading = false;
 
   @override
   void didChangeDependencies() {
@@ -41,33 +48,21 @@ class _FoodScannerButtonState extends State<FoodScannerButton> {
     }
   }
 
-  void _showLoadingMessage(String message) {
-    if (mounted && _scaffoldMessenger != null && _scaffoldMessenger!.mounted) {
-      _scaffoldMessenger!.showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const SizedBox(
-                width: 20,
-                height: 20,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(width: 16),
-              Text(message),
-            ],
-          ),
-          duration: const Duration(seconds: 30),
-        ),
-      );
+  void _showLoadingOverlay(String message) {
+    if (mounted) {
+      setState(() {
+        _isLoading = true;
+      });
+      widget.onShowLoading(message);
     }
   }
 
-  void _hideCurrentMessage() {
-    if (mounted && _scaffoldMessenger != null && _scaffoldMessenger!.mounted) {
-      _scaffoldMessenger!.hideCurrentSnackBar();
+  void _hideLoadingOverlay() {
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+      widget.onHideLoading();
     }
   }
 
@@ -233,7 +228,13 @@ class _FoodScannerButtonState extends State<FoodScannerButton> {
   ) async {
     if (!mounted) return;
 
-    _showLoadingMessage('Analizando imagen...');
+    // Show different messages based on whether serving size is provided
+    final message =
+        servingSize != null && servingSize > 0
+            ? 'Consultando a Gemini 2.5 Pro'
+            : 'Consultando GPT-4 Mini y Gemini 2.5 Pro';
+
+    _showLoadingOverlay(message);
 
     try {
       final foodData = await ImageProcessingService.processImage(
@@ -243,7 +244,7 @@ class _FoodScannerButtonState extends State<FoodScannerButton> {
 
       if (!mounted) return;
 
-      _hideCurrentMessage();
+      _hideLoadingOverlay();
 
       if (foodData != null) {
         _showFoodDataDialog(foodData, servingSize);
@@ -256,7 +257,7 @@ class _FoodScannerButtonState extends State<FoodScannerButton> {
     } catch (e) {
       if (!mounted) return;
 
-      _hideCurrentMessage();
+      _hideLoadingOverlay();
       _showMessage(
         'Error al analizar: ${e.toString()}',
         backgroundColor: Colors.red,
@@ -271,7 +272,7 @@ class _FoodScannerButtonState extends State<FoodScannerButton> {
       context: context,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
-          title: const Text('Información nutricional'),
+          title: const Text('Resultados'),
           content: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -399,7 +400,7 @@ class _FoodScannerButtonState extends State<FoodScannerButton> {
   Future<void> _saveFoodData(FoodData foodData) async {
     if (!mounted) return;
 
-    _showLoadingMessage('Guardando comida...');
+    _showLoadingOverlay('Guardando información nutricional');
 
     try {
       final success = await ImageProcessingService.saveFoodData(
@@ -409,7 +410,7 @@ class _FoodScannerButtonState extends State<FoodScannerButton> {
 
       if (!mounted) return;
 
-      _hideCurrentMessage();
+      _hideLoadingOverlay();
 
       if (success) {
         EventBus().emitFoodAdded();
@@ -432,7 +433,7 @@ class _FoodScannerButtonState extends State<FoodScannerButton> {
       }
     } catch (e) {
       if (mounted) {
-        _hideCurrentMessage();
+        _hideLoadingOverlay();
         _showMessage(
           'Error al guardar: ${e.toString()}',
           backgroundColor: Colors.red,
@@ -444,7 +445,7 @@ class _FoodScannerButtonState extends State<FoodScannerButton> {
   @override
   Widget build(BuildContext context) {
     return FloatingActionButton(
-      onPressed: () => _showSourceSelection(context),
+      onPressed: _isLoading ? null : () => _showSourceSelection(context),
       tooltip: 'Agregar comida',
       child: const Icon(Icons.camera_alt),
     );

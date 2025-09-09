@@ -31,22 +31,38 @@ class SidebarDrawer extends StatelessWidget {
                 ],
               ),
             ),
-            child: const SafeArea(
+            child: SafeArea(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Nutria Logo (you can replace with an actual logo asset)
-                  CircleAvatar(
-                    radius: 40,
-                    backgroundColor: Colors.white,
-                    child: Icon(
-                      Icons.restaurant,
-                      size: 40,
-                      color: Color(0xFF066FFF),
+                  // Nutria Logo
+                  Container(
+                    width: 80,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 8,
+                          spreadRadius: 2,
+                        ),
+                      ],
+                    ),
+                    child: Padding(
+                      padding: EdgeInsets.all(12.0),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(40),
+                        child: Image.asset(
+                          'assets/icons/app_icon.png',
+                          fit: BoxFit.contain,
+                        ),
+                      ),
                     ),
                   ),
-                  SizedBox(height: 16),
-                  Text(
+                  const SizedBox(height: 16),
+                  const Text(
                     'Nutria',
                     style: TextStyle(
                       fontSize: 28,
@@ -54,7 +70,7 @@ class SidebarDrawer extends StatelessWidget {
                       color: Colors.white,
                     ),
                   ),
-                  Text(
+                  const Text(
                     'Tu asistente nutricional',
                     style: TextStyle(fontSize: 14, color: Colors.white70),
                   ),

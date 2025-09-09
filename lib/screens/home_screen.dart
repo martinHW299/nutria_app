@@ -4,7 +4,8 @@ import 'package:nutria/screens/trace_screen.dart';
 import 'package:nutria/widgets/home/date_selector.dart';
 import 'package:nutria/widgets/home/food_scanner_button.dart';
 import 'package:nutria/widgets/sidebar_drawer.dart';
-import '../services/auth_service.dart';
+import 'package:nutria/widgets/loading_overlay.dart';
+// import '../services/auth_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -16,6 +17,8 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
   DateTime _selectedDate = DateTime.now();
+  bool _isLoading = false;
+  String _loadingMessage = '';
 
   // Method to handle navigation changes
   void _onNavigationChanged(int index) {
@@ -32,10 +35,29 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   // Handle logout
-  Future<void> _handleLogout() async {
-    await AuthService.logout();
+  // Future<void> _handleLogout() async {
+  //   await AuthService.logout();
+  //   if (mounted) {
+  //     Navigator.pushReplacementNamed(context, '/login');
+  //   }
+  // }
+
+  // Loading overlay methods
+  void _showLoading(String message) {
     if (mounted) {
-      Navigator.pushReplacementNamed(context, '/login');
+      setState(() {
+        _isLoading = true;
+        _loadingMessage = message;
+      });
+    }
+  }
+
+  void _hideLoading() {
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+        _loadingMessage = '';
+      });
     }
   }
 
@@ -54,40 +76,52 @@ class _HomeScreenState extends State<HomeScreen> {
         currentScreen = TraceScreen(selectedDate: _selectedDate);
     }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Nutria'),
-        actions: [
-          // Using the extracted date selector widget
-          DateSelector(
-            selectedDate: _selectedDate,
-            onDateChanged: _onDateChanged,
+    return Stack(
+      children: [
+        Scaffold(
+          appBar: AppBar(
+            title: const Text('Nutria'),
+            actions: [
+              // Using the extracted date selector widget
+              DateSelector(
+                selectedDate: _selectedDate,
+                onDateChanged: _onDateChanged,
+              ),
+              // IconButton(
+              //   icon: const Icon(Icons.logout),
+              //   onPressed: _handleLogout,
+              //   tooltip: 'Cerrar sesión',
+              // ),
+            ],
           ),
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: _handleLogout,
-            tooltip: 'Cerrar sesión',
+          drawer: const SidebarDrawer(),
+          body: currentScreen,
+          floatingActionButton:
+              _currentIndex == 0
+                  ? FoodScannerButton(
+                    date: _selectedDate,
+                    onShowLoading: _showLoading,
+                    onHideLoading: _hideLoading,
+                  )
+                  : null,
+          bottomNavigationBar: BottomNavigationBar(
+            currentIndex: _currentIndex,
+            onTap: _onNavigationChanged,
+            items: const [
+              BottomNavigationBarItem(
+                icon: Icon(Icons.food_bank),
+                label: 'Registro',
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.analytics),
+                label: 'Análisis',
+              ),
+            ],
           ),
-        ],
-      ),
-      drawer: const SidebarDrawer(),
-      body: currentScreen,
-      floatingActionButton:
-          _currentIndex == 0 ? FoodScannerButton(date: _selectedDate) : null,
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: _onNavigationChanged,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.food_bank),
-            label: 'Registro',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.analytics),
-            label: 'Análisis',
-          ),
-        ],
-      ),
+        ),
+        // Loading overlay
+        LoadingOverlay(message: _loadingMessage, isVisible: _isLoading),
+      ],
     );
   }
 }

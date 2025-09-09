@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+// import 'package:intl/intl.dart';
 import 'package:nutria/models/nutrition_goal.dart';
 import 'package:nutria/models/daily_intake.dart';
 import 'package:nutria/services/nutrition_service.dart';
@@ -75,9 +75,9 @@ class _TraceScreenState extends State<TraceScreen> {
         _foodTraces = traces;
         _isLoading = false;
       });
-      print('_foodTraces: ${_foodTraces.map((trace) => trace.id).join(', ')}');
+      // print('_foodTraces: ${_foodTraces.map((trace) => trace.id).join(', ')}');
     } catch (e) {
-      print('Error loading food traces: $e');
+      // print('Error loading food traces: $e');
       setState(() {
         _isLoading = false;
       });
@@ -105,7 +105,7 @@ class _TraceScreenState extends State<TraceScreen> {
         _isLoadingNutrition = false;
       });
     } catch (e) {
-      print('Error loading nutrition data: $e');
+      // print('Error loading nutrition data: $e');
       setState(() {
         _isLoadingNutrition = false;
       });
@@ -154,7 +154,7 @@ class _TraceScreenState extends State<TraceScreen> {
         }
       }
     } catch (e) {
-      print('Error creating nutrition goal: $e');
+      // print('Error creating nutrition goal: $e');
       setState(() {
         _isLoadingNutrition = false;
       });
@@ -200,7 +200,7 @@ class _TraceScreenState extends State<TraceScreen> {
         }
       }
     } catch (e) {
-      print('Error deleting food trace: $e');
+      // print('Error deleting food trace: $e');
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

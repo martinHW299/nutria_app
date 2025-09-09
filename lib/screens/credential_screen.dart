@@ -64,7 +64,7 @@ class _CredentialsScreenState extends State<CredentialsScreen> {
         'password': _passwordController.text,
       };
 
-      print('Complete userData: $completeUserData');
+      // print('Complete userData: $completeUserData');
 
       final result = await AuthService.signup(completeUserData);
 

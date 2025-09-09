@@ -9,7 +9,7 @@ class ImageProcessingService {
       final formattedDate = DateFormat(
         'yyyy-MM-dd',
       ).format(date ?? DateTime.now());
-      print('Formatted date: $formattedDate');
+      // print('Formatted date: $formattedDate');
       final token = await JwtStorage.getToken();
       if (token == null) {
         throw Exception('No authentication token found');
@@ -25,7 +25,7 @@ class ImageProcessingService {
         final responseData = response.data;
         if (responseData['status'] == 200 && responseData['data'] != null) {
           final List<dynamic> foodTracesList = responseData['data'];
-          print('foodTracesList: $foodTracesList');
+          // print('foodTracesList: $foodTracesList');
           return foodTracesList
               .map((item) => FoodTrace.fromJson(item))
               .toList();
@@ -33,7 +33,7 @@ class ImageProcessingService {
       }
       return [];
     } catch (e) {
-      print('Error fetching food traces: $e');
+      // print('Error fetching food traces: $e');
       return [];
     }
   }
@@ -48,7 +48,7 @@ class ImageProcessingService {
       throw Exception('No authentication token found');
     }
 
-    print('Processing image with serving size: $userServingSize');
+    // print('Processing image with serving size: $userServingSize');
 
     try {
       // Prepare request body based on whether serving size is provided
@@ -63,7 +63,7 @@ class ImageProcessingService {
         requestBody['userServingSize'] = userServingSize;
       }
 
-      print('Request body: $requestBody');
+      // print('Request body: $requestBody');
 
       final response = await ApiClient.post(
         'food-trace/analyze-food',
@@ -74,11 +74,11 @@ class ImageProcessingService {
         },
       );
 
-      print('Analyze food response: $response');
+      // print('Analyze food response: $response');
 
       if (response.statusCode == 200) {
         final responseData = response.data;
-        print('Response data: $responseData');
+        // print('Response data: $responseData');
 
         if (responseData['status'] == 200 && responseData['data'] != null) {
           final foodData = FoodData.fromJson(responseData['data']);
@@ -89,7 +89,7 @@ class ImageProcessingService {
 
       return null;
     } catch (e) {
-      print('Error processing image: $e');
+      // print('Error processing image: $e');
       return null;
     }
   }
@@ -99,7 +99,7 @@ class ImageProcessingService {
       final formattedDate = DateFormat(
         'yyyy-MM-dd',
       ).format(date ?? DateTime.now());
-      print('Formatted date: $formattedDate');
+      // print('Formatted date: $formattedDate');
 
       final token = await JwtStorage.getToken();
       if (token == null) {
@@ -114,10 +114,10 @@ class ImageProcessingService {
           'Authorization': 'Bearer $token',
         },
       );
-      print('Save food response: $response');
+      // print('Save food response: $response');
       return response.statusCode == 200;
     } catch (e) {
-      print('Error saving food data: $e');
+      // print('Error saving food data: $e');
       return false;
     }
   }
