@@ -15,7 +15,27 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isLoading = false;
   bool _obscurePassword = true;
 
+  @override
+  void initState() {
+    super.initState();
+    print('🎬 LoginScreen initState called at ${DateTime.now()}');
+  }
+
+  @override
+  void dispose() {
+    print('🎬 LoginScreen dispose called at ${DateTime.now()}');
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
   Future<void> login() async {
+    print('🔍 LOGIN METHOD CALLED');
+    print('🔍 Current time: ${DateTime.now()}');
+    print('🔍 Email: ${emailController.text}');
+    print('🔍 Is already loading: $_isLoading');
+    print('🔍 Stack trace:\n${StackTrace.current}');
+
     if (emailController.text.isEmpty || passwordController.text.isEmpty) {
       showDialog(
         context: context,
@@ -257,7 +277,10 @@ class _LoginScreenState extends State<LoginScreen> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      onPressed: _isLoading ? null : login,
+                      onPressed: _isLoading ? null : () {
+                        print('🔘 Login button pressed at ${DateTime.now()}');
+                        login();
+                      },
                       child:
                           _isLoading
                               ? const SizedBox(

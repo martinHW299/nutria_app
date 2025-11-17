@@ -1,6 +1,7 @@
 // lib/widgets/sidebar_drawer.dart
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
+import '../screens/about_screen.dart';
 
 class SidebarDrawer extends StatelessWidget {
   const SidebarDrawer({super.key});
@@ -134,7 +135,12 @@ class SidebarDrawer extends StatelessWidget {
                   title: const Text('Acerca de'),
                   onTap: () {
                     Navigator.pop(context);
-                    _showAboutDialog(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const AboutScreen(),
+                      ),
+                    );
                   },
                 ),
                 ListTile(
@@ -164,35 +170,6 @@ class SidebarDrawer extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-
-  void _showAboutDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Acerca de Nutria'),
-            content: const Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Nutria - Tu Asistente Nutricional'),
-                SizedBox(height: 8),
-                Text('Versión: 1.0.0'),
-                SizedBox(height: 8),
-                Text(
-                  'Desarrollado para ayudarte a mantener un estilo de vida saludable a través del seguimiento nutricional inteligente.',
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Cerrar'),
-              ),
-            ],
-          ),
     );
   }
 }

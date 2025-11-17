@@ -110,10 +110,10 @@ class _HomeScreenState extends State<HomeScreen> {
             items: const [
               BottomNavigationBarItem(
                 icon: Icon(Icons.food_bank),
-                label: 'Registro',
+                label: 'Diario',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.analytics),
+                icon: Icon(Icons.bar_chart_sharp),
                 label: 'Análisis',
               ),
             ],

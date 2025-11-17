@@ -4,8 +4,8 @@ import 'package:dio/dio.dart';
 class ApiClient {
   static final Dio _dio = Dio(
     BaseOptions(
-      baseUrl: 'http://192.168.0.205:8080/api/v1/',
-      // baseUrl: 'http://172.20.10.4:8080/api/v1/',
+      // baseUrl: 'http://192.168.0.205:8080/api/v1/',
+      baseUrl: 'http://192.168.0.111:8080/api/v1/',
       contentType: 'application/json',
       responseType: ResponseType.json,
       connectTimeout: Duration(seconds: 30),
@@ -51,12 +51,16 @@ class ApiClient {
     dynamic data, {
     Map<String, dynamic>? headers,
   }) async {
+    print('📡 ApiClient.post CALLED');
+    print('📡 Endpoint: $endpoint');
+    print('📡 Time: ${DateTime.now()}');
     try {
       final response = await _dio.post(
         endpoint,
         data: data,
         options: Options(headers: headers),
       );
+      print('📡 Response received for $endpoint - Status: ${response.statusCode}');
       return response;
     } on DioException catch (e) {
       // Handle Dio specific errors

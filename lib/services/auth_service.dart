@@ -3,11 +3,16 @@ import '../utils/jwt_storage.dart';
 
 class AuthService {
   static Future<dynamic> login(String email, String password) async {
+    print('🌐 AuthService.login CALLED');
+    print('🌐 Time: ${DateTime.now()}');
+    print('🌐 Email: $email');
     try {
+      print('🌐 Making API call to auth/login...');
       final res = await ApiClient.post('auth/login', {
         'email': email,
         'password': password,
       });
+      print('🌐 Response received - Status: ${res.statusCode}');
 
       if (res.statusCode == 200) {
         // Extract token from nested data structure
