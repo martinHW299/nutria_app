@@ -55,6 +55,16 @@
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
+		<key>NSAllowsLocalNetworking</key>
+		<true/>
 	</dict>
+
+	<!-- Permiso para acceder a dispositivos en la red local (iOS 14+) -->
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Nutria necesita acceso a la red local para conectarse con el servidor de desarrollo</string>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_http._tcp</string>
+	</array>
 </dict>
 </plist>
